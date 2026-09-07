@@ -18,7 +18,7 @@ const InputMatrix = ({
             className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold text-[#3DD6D0]"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            Input Matrix (Tap A – F)
+            Input Matrix (Tap A – H)
           </h2>
           {!isTimerStarted && !levelCleared && (
             <span className="text-[8px] text-[#E89B4A] uppercase font-mono font-bold animate-pulse">
@@ -46,8 +46,9 @@ const InputMatrix = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
-        {INPUT_LABELS.map(label => {
+      <div className="-mx-1 px-1 pb-1">
+        <div className="grid grid-cols-8 gap-1.5 sm:gap-3">
+          {INPUT_LABELS.map(label => {
           const on = inputs[label] === 1;
           const reqVal = fixedInputs ? fixedInputs[label] : undefined;
           const isFixed = reqVal !== undefined;
@@ -61,7 +62,7 @@ const InputMatrix = ({
                 toggleInput(label);
               }}
               disabled={levelCleared}
-              className="relative flex flex-col items-center justify-center w-full h-18 sm:h-22 rounded-xl border-2 cursor-pointer select-none disabled:cursor-not-allowed active:scale-95 touch-manipulation transition-all duration-200"
+              className="relative flex h-18 min-w-0 flex-col items-center justify-center rounded-xl border-2 cursor-pointer select-none disabled:cursor-not-allowed active:scale-95 touch-manipulation transition-all duration-200 sm:h-22"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 borderColor: on ? '#F4C95D' : isFixed ? (fixedMet ? '#48C78E' : '#E89B4A') : '#1E344D',
@@ -104,8 +105,9 @@ const InputMatrix = ({
                 {on ? '1' : '0'}
               </span>
             </button>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );

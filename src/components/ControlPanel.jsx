@@ -19,7 +19,7 @@ const ControlPanel = ({
   return (
     <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#0D1B2A]">
       {/* Level Progress Tracker */}
-      <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+      <div className="order-2 flex items-center gap-1.5 overflow-x-auto py-1 lg:order-none">
         {PUZZLES.map((p, idx) => {
           const isCurrent = idx === currentLevel;
           const isCleared = completedLevels.includes(idx);
@@ -67,8 +67,8 @@ const ControlPanel = ({
       </div>
 
       {/* Level Info & Target Output */}
-      <div className="flex flex-wrap items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:w-auto lg:justify-end">
+        <div className="flex min-w-0 items-center gap-2">
           <span className="text-xs sm:text-sm font-bold text-[#F5F1E8]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             {puzzle.name}
           </span>
@@ -85,7 +85,7 @@ const ControlPanel = ({
 
         {/* Compulsory Node Locks (1 per layer) */}
         {puzzle.fixedNodes && (
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
             {Object.entries(puzzle.fixedNodes).map(([nodeLabel, reqVal]) => {
               const nodeIdx = CIRCUIT.find(n => n.label === nodeLabel)?.id;
               const curVal = gateOutputs && nodeIdx !== undefined ? gateOutputs[nodeIdx] : undefined;
@@ -111,7 +111,7 @@ const ControlPanel = ({
 
         {/* Fixed Input Constraints */}
         {puzzle.fixedInputs && (
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
             {Object.entries(puzzle.fixedInputs).map(([inputKey, reqVal]) => {
               const curVal = inputs ? inputs[inputKey] : undefined;
               const ok = curVal === reqVal;

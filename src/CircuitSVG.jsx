@@ -1,52 +1,58 @@
 import React, { useMemo } from 'react';
 import { CIRCUIT } from './engine';
 
-/* ── 1. PORTRAIT TREE LAYOUT (Bottom → Top Flow, 6 Inputs, 3 Layers, 7 Gates) ────
-   viewBox = 0 0 540 560
-   Inputs A-F at bottom (y=480), Gate 7 (G7) & Output at top (y=35)
+/* ── 1. PORTRAIT TREE LAYOUT (Bottom → Top Flow, 8 Inputs, 4 Layers, 8 Gates) ────
+   viewBox = 0 0 540 600
+   Inputs A-H at bottom (y=520), Gate 8 (G8) & Output at top (y=35)
 */
 const TREE_INPUT_POS = {
-  A: { x: 50,  y: 480 },
-  B: { x: 130, y: 480 },
-  C: { x: 210, y: 480 },
-  D: { x: 290, y: 480 },
-  E: { x: 370, y: 480 },
-  F: { x: 450, y: 480 },
+  A: { x: 30,  y: 520 },
+  B: { x: 100, y: 520 },
+  C: { x: 170, y: 520 },
+  D: { x: 240, y: 520 },
+  E: { x: 310, y: 520 },
+  F: { x: 380, y: 520 },
+  G: { x: 450, y: 520 },
+  H: { x: 520, y: 520 },
 };
 
 const TREE_GATE_POS = {
-  0: { x: 40,  y: 360 }, // G1 (A, B)
-  1: { x: 160, y: 360 }, // G2 (B, C)
-  2: { x: 280, y: 360 }, // G3 (D, E)
-  3: { x: 400, y: 360 }, // G4 (E, F)
-  4: { x: 100, y: 220 }, // G5 (G1, G2)
-  5: { x: 340, y: 220 }, // G6 (G3, G4)
-  6: { x: 220, y: 90  }, // G7 (G5, G6) -> Final Output
+  0: { x: 30,  y: 400 }, // G1 (A, B)
+  1: { x: 170, y: 400 }, // G2 (C, D)
+  2: { x: 310, y: 400 }, // G3 (E, F)
+  3: { x: 450, y: 400 }, // G4 (G, H)
+  4: { x: 100, y: 280 }, // G5 (G1, G2)
+  5: { x: 380, y: 280 }, // G6 (G3, G4)
+  6: { x: 240, y: 160 }, // G7 (G5, G6)
+  7: { x: 240, y: 60  }, // G8 (G7, G6) - Output Stage
 };
 
 const TREE_GATE_W = 80;
 const TREE_GATE_H = 42;
 
-/* ── 2. LANDSCAPE FLOW LAYOUT (Left → Right Flow) ──────────────────────
-   viewBox = 0 0 960 480
+/* ── 2. LANDSCAPE FLOW LAYOUT (Left → Right Flow, 8 Inputs, 4 Layers, 8 Gates) ────
+   viewBox = 0 0 1080 520
 */
 const FLOW_INPUT_POS = {
-  A: { x: 40, y: 50  },
-  B: { x: 40, y: 120 },
-  C: { x: 40, y: 190 },
-  D: { x: 40, y: 260 },
-  E: { x: 40, y: 330 },
-  F: { x: 40, y: 400 },
+  A: { x: 40, y: 40  },
+  B: { x: 40, y: 100 },
+  C: { x: 40, y: 160 },
+  D: { x: 40, y: 220 },
+  E: { x: 40, y: 280 },
+  F: { x: 40, y: 340 },
+  G: { x: 40, y: 400 },
+  H: { x: 40, y: 460 },
 };
 
 const FLOW_GATE_POS = {
-  0: { x: 220, y: 60  },
-  1: { x: 220, y: 160 },
-  2: { x: 220, y: 270 },
-  3: { x: 220, y: 370 },
-  4: { x: 480, y: 110 },
-  5: { x: 480, y: 320 },
-  6: { x: 740, y: 215 },
+  0: { x: 240, y: 50  }, // G1
+  1: { x: 240, y: 190 }, // G2
+  2: { x: 240, y: 330 }, // G3
+  3: { x: 240, y: 470 }, // G4
+  4: { x: 500, y: 120 }, // G5
+  5: { x: 500, y: 400 }, // G6
+  6: { x: 760, y: 260 }, // G7
+  7: { x: 980, y: 260 }, // G8 - Output Stage
 };
 
 const FLOW_GATE_W = 104;
@@ -116,7 +122,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         });
       });
     }
-    // Gates → Gates
+    // Gates → Gates (all layers > 1)
     for (const node of CIRCUIT) {
       if (node.layer === 1) continue;
       const gp = TREE_GATE_POS[node.id];
@@ -133,15 +139,15 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         });
       });
     }
-    // Final output wire from G7 (id 6)
-    const g7 = TREE_GATE_POS[6];
+    // Final output wire from G8 (id 7) - Output Stage
+    const g8 = TREE_GATE_POS[7];
     result.push({
       key: 'tree-out-wire',
-      x1: g7.x + TREE_GATE_W / 2,
-      y1: g7.y,
-      x2: g7.x + TREE_GATE_W / 2,
-      y2: g7.y - 30,
-      powered: gateOutputs[6] === 1,
+      x1: g8.x + TREE_GATE_W / 2,
+      y1: g8.y,
+      x2: g8.x + TREE_GATE_W / 2,
+      y2: g8.y - 30,
+      powered: gateOutputs[7] === 1,
     });
     return result;
   }, [inputs, gateOutputs]);
@@ -181,14 +187,15 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         });
       });
     }
-    const g7 = FLOW_GATE_POS[6];
+    // Final output wire from G8 (id 7) - Output Stage
+    const g8 = FLOW_GATE_POS[7];
     result.push({
       key: 'flow-out-wire',
-      x1: g7.x + FLOW_GATE_W,
-      y1: g7.y + FLOW_GATE_H / 2,
-      x2: g7.x + FLOW_GATE_W + 60,
-      y2: g7.y + FLOW_GATE_H / 2,
-      powered: gateOutputs[6] === 1,
+      x1: g8.x + FLOW_GATE_W,
+      y1: g8.y + FLOW_GATE_H / 2,
+      x2: g8.x + FLOW_GATE_W + 60,
+      y2: g8.y + FLOW_GATE_H / 2,
+      powered: gateOutputs[7] === 1,
     });
     return result;
   }, [inputs, gateOutputs]);
@@ -197,9 +204,9 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
   if (layoutMode === 'tree') {
     return (
       <svg
-        viewBox="0 0 540 560"
+        viewBox="0 0 540 600"
         preserveAspectRatio="xMidYMid meet"
-        className="w-full h-auto max-w-[540px] mx-auto max-h-[560px]"
+        className="w-full h-auto max-w-[540px] mx-auto max-h-[600px]"
       >
         <defs>
           <filter id="neon-glow">
@@ -215,14 +222,15 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         <pattern id="grid-tree" width="30" height="30" patternUnits="userSpaceOnUse">
           <circle cx="15" cy="15" r="0.5" fill="#1E344D" opacity="0.5" />
         </pattern>
-        <rect width="540" height="560" fill="url(#grid-tree)" />
+        <rect width="540" height="600" fill="url(#grid-tree)" />
 
         {/* Layer Guide Lines */}
         {[
-          { y: 505, label: 'INPUTS (A-F)' },
-          { y: 340, label: 'LAYER 1 GATES' },
-          { y: 200, label: 'LAYER 2 GATES' },
-          { y: 70,  label: 'LAYER 3 OUTPUT' },
+          { y: 545, label: 'INPUTS (A-H)' },
+          { y: 380, label: 'LAYER 1 GATES' },
+          { y: 260, label: 'LAYER 2 GATES' },
+          { y: 140, label: 'LAYER 3 GATE' },
+          { y: 40,  label: 'LAYER 4 OUTPUT STAGE' },
         ].map((lh, i) => (
           <text
             key={i}
@@ -243,7 +251,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
           <WireTree key={w.key} {...w} />
         ))}
 
-        {/* Bottom Inputs (A–F) */}
+        {/* Bottom Inputs (A–H) */}
         {Object.entries(TREE_INPUT_POS).map(([label, pos]) => {
           const on = inputs[label] === 1;
           const reqVal = fixedInputs ? fixedInputs[label] : undefined;
@@ -278,7 +286,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
           );
         })}
 
-        {/* Gate Boxes (G1-G7) */}
+        {/* Gate Boxes (G1-G8) */}
         {CIRCUIT.map((node) => {
           const pos = TREE_GATE_POS[node.id];
           const type = gateTypes[node.id];
@@ -376,12 +384,12 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
           );
         })}
 
-        {/* Top Crown Output Node (G7 Output) */}
+        {/* Top Crown Output Node (G8 Output - Output Stage) */}
         {(() => {
-          const g7 = TREE_GATE_POS[6];
-          const ox = g7.x + TREE_GATE_W / 2;
-          const oy = g7.y - 45;
-          const on = gateOutputs[6] === 1;
+          const g8 = TREE_GATE_POS[7];
+          const ox = g8.x + TREE_GATE_W / 2;
+          const oy = g8.y - 45;
+          const on = gateOutputs[7] === 1;
           return (
             <g>
               <circle
@@ -405,7 +413,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
-                {gateOutputs[6]}
+                {gateOutputs[7]}
               </text>
               <text
                 x={ox} y={oy + 40}
@@ -428,9 +436,9 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
   // ── RENDER LANDSCAPE FLOW MODE ────────────────────────────────────────
   return (
     <svg
-      viewBox="0 0 960 480"
+      viewBox="0 0 1080 520"
       preserveAspectRatio="xMidYMid meet"
-      className="w-full h-auto min-w-[760px] lg:min-w-full max-h-[500px]"
+      className="w-full h-auto min-w-[760px] lg:min-w-full max-h-[520px]"
     >
       <defs>
         <filter id="neon-glow-flow">
@@ -445,12 +453,13 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
       <pattern id="grid-flow" width="30" height="30" patternUnits="userSpaceOnUse">
         <circle cx="15" cy="15" r="0.5" fill="#1E344D" opacity="0.5" />
       </pattern>
-      <rect width="960" height="480" fill="url(#grid-flow)" />
+      <rect width="1080" height="520" fill="url(#grid-flow)" />
 
       {[
         { x: 250, label: 'LAYER 1' },
         { x: 510, label: 'LAYER 2' },
-        { x: 770, label: 'LAYER 3 (FINAL)' },
+        { x: 770, label: 'LAYER 3' },
+        { x: 1010, label: 'LAYER 4 OUTPUT STAGE' },
       ].map((lh, i) => (
         <text
           key={i}
@@ -552,15 +561,15 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
       })}
 
       {(() => {
-        const g7 = FLOW_GATE_POS[6];
-        const ox = g7.x + FLOW_GATE_W + 60;
-        const oy = g7.y + FLOW_GATE_H / 2;
-        const on = gateOutputs[6] === 1;
+        const g8 = FLOW_GATE_POS[7];
+        const ox = g8.x + FLOW_GATE_W + 60;
+        const oy = g8.y + FLOW_GATE_H / 2;
+        const on = gateOutputs[7] === 1;
         return (
           <g>
             <circle cx={ox} cy={oy} r={24} fill={on ? 'rgba(72,199,142,0.22)' : 'rgba(231,111,81,0.14)'} stroke={on ? '#48C78E' : '#E76F51'} strokeWidth={2.5} />
             <text x={ox} y={oy + 1} fill={on ? '#48C78E' : '#E76F51'} fontSize="18" fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle" dominantBaseline="middle">
-              {gateOutputs[6]}
+              {gateOutputs[7]}
             </text>
             <text x={ox} y={oy + 40} fill="#AAB7C4" fontSize="9" fontFamily="'Orbitron', sans-serif" fontWeight="700" textAnchor="middle" letterSpacing="2">
               OUTPUT

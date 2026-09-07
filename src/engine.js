@@ -23,18 +23,20 @@ export function normalizePhrase(phrase) {
   return phrase.trim().toUpperCase().replace(/\s+/g, ' ');
 }
 
-// ── Circuit topology (fixed wiring: 6 inputs, 3 layers, 7 gates) ────────────────────
-// Layer 1: 4 gates (G1..G4)
-// Layer 2: 2 gates (G5..G6)
-// Layer 3: 1 gate  (G7) → Final Output (id 6)
+// ── Circuit topology (fixed wiring: 8 inputs, 4 layers, 8 gates) ────────────────────
+// Layer 1: 4 gates (G1..G4) - each takes 2 inputs from A-H
+// Layer 2: 2 gates (G5..G6) - each takes 2 outputs from Layer 1
+// Layer 3: 1 gate  (G7)     - takes 2 outputs from Layer 2
+// Layer 4: 1 gate  (G8)     - Output Stage: takes G7 and G6
 export const CIRCUIT = [
   { id: 0, label: 'G1', layer: 1, inputs: ['A','B'] },
-  { id: 1, label: 'G2', layer: 1, inputs: ['B','C'] },
-  { id: 2, label: 'G3', layer: 1, inputs: ['D','E'] },
-  { id: 3, label: 'G4', layer: 1, inputs: ['E','F'] },
+  { id: 1, label: 'G2', layer: 1, inputs: ['C','D'] },
+  { id: 2, label: 'G3', layer: 1, inputs: ['E','F'] },
+  { id: 3, label: 'G4', layer: 1, inputs: ['G','H'] },
   { id: 4, label: 'G5', layer: 2, inputs: [0, 1]   },
   { id: 5, label: 'G6', layer: 2, inputs: [2, 3]   },
   { id: 6, label: 'G7', layer: 3, inputs: [4, 5]   },
+  { id: 7, label: 'G8', layer: 4, inputs: [6, 5]   }, // Output Stage
 ];
 
 // Map node indices to readable names
@@ -52,9 +54,9 @@ export const CIPHER_WORDS = [
 
 export const FULL_CIPHER_SENTENCE = CIPHER_WORDS.join(' '); // "MASTER THE LOGIC"
 
-// ── Binary to ASCII Converter Helper (6-bit binary) ────────────────────────
+// ── Binary to ASCII Converter Helper (8-bit binary) ────────────────────────
 export function inputsToAscii(inputs) {
-  const binaryStr = `${inputs.A ?? 0}${inputs.B ?? 0}${inputs.C ?? 0}${inputs.D ?? 0}${inputs.E ?? 0}${inputs.F ?? 0}`;
+  const binaryStr = INPUT_LABELS.map(label => inputs[label] ?? 0).join('');
   const code = parseInt(binaryStr, 2);
   const char = code >= 32 && code <= 126 ? String.fromCharCode(code) : '•';
   return { binaryStr, code, char };
@@ -62,7 +64,7 @@ export function inputsToAscii(inputs) {
 
 // ── Evaluate the full circuit ──────────────────────────
 export function evaluate(inputMap, gateTypes) {
-  const out = new Array(7).fill(0);
+  const out = new Array(8).fill(0);
   for (const node of CIRCUIT) {
     const gt = gateTypes[node.id];
     const fn = GATES[gt];
@@ -78,17 +80,12 @@ export function evaluate(inputMap, gateTypes) {
 
 // ── Find a valid solution map for Admin Auto-Solve/Skip ─────
 export function findSolution(puzzle) {
-  for (let mask = 0; mask < 64; mask++) {
-    const inputMap = {
-      A: (mask >> 5) & 1,
-      B: (mask >> 4) & 1,
-      C: (mask >> 3) & 1,
-      D: (mask >> 2) & 1,
-      E: (mask >> 1) & 1,
-      F: mask & 1,
-    };
+  for (let mask = 0; mask < 256; mask++) {
+    const inputMap = Object.fromEntries(
+      INPUT_LABELS.map((label, index) => [label, (mask >> (7 - index)) & 1])
+    );
     const out = evaluate(inputMap, puzzle.gates);
-    const targetMet = out[6] === puzzle.target;
+    const targetMet = out[7] === puzzle.target; // G8 is final output (index 7)
     let fixedMet = true;
     if (puzzle.fixedInputs) {
       for (const [inputKey, reqVal] of Object.entries(puzzle.fixedInputs)) {
@@ -107,37 +104,50 @@ export function findSolution(puzzle) {
   return null;
 }
 
-// Default starting input states (6 inputs, all zeros)
-export const DEFAULT_INPUTS = { A:0, B:0, C:0, D:0, E:0, F:0 };
+// Default starting input states (8 inputs, all zeros)
+export const DEFAULT_INPUTS = { A:0, B:0, C:0, D:0, E:0, F:0, G:0, H:0 };
 
-// Input label identifiers (6 inputs: A–F)
-export const INPUT_LABELS = ['A','B','C','D','E','F'];
+// Input label identifiers (8 inputs: A–H)
+export const INPUT_LABELS = ['A','B','C','D','E','F','G','H'];
 
-// ── 3 Hardcore Puzzles with Fixed Node (Layer 1,2,3) & Input Constraints ──
+// ── 3 puzzles with one required input and 2-3 compulsory gate conditions ──
+// Answers spell "GOD" in ASCII: G=01000111, O=01001111, D=01000100
 export const PUZZLES = [
   {
-    name: '01 · The Gorgon’s Labyrinth',
-    gates: ['OR', 'NOR', 'OR', 'NOR', 'AND', 'NOR', 'AND'],
+    name: '01 · The Gorgon\'s Labyrinth',
+    // Gates designed so answer 01000111 (G) is the unique solution
+    gates: ['OR', 'OR', 'XOR', 'AND', 'NOR', 'AND', 'XOR', 'OR'],
     target: 1,
-    fixedNodes: { G1: 1, G5: 1 }, // Layer 1: G1=1, Layer 2: G5=1, Layer 3: G7=1 (target)
-    fixedInputs: { A: 1 },
-    initialInputs: { A: 1, B: 0, C: 0, D: 0, E: 0, F: 0 },
+    answer: '01000111',
+    // Constraint 1: One required input (A must be 0)
+    fixedInputs: { A: 0 },
+    // Constraint 2: 3 compulsory gate values
+    fixedNodes: { G1: 1, G5: 0, G7: 1 },
+    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
   },
   {
-    name: '02 · Titan’s Parity Trap',
-    gates: ['AND', 'NAND', 'OR', 'NOR', 'OR', 'OR', 'AND'],
-    target: 0,
-    fixedNodes: { G4: 0, G6: 1 }, // Layer 1: G4=0, Layer 2: G6=1, Layer 3: G7=0 (target)
-    fixedInputs: { B: 1 },
-    initialInputs: { A: 0, B: 1, C: 0, D: 0, E: 0, F: 0 },
+    name: '02 · Titan\'s Parity Trap',
+    // Gates designed so answer 01001111 (O) is the unique solution
+    gates: ['OR', 'AND', 'AND', 'AND', 'AND', 'AND', 'OR', 'XNOR'],
+    target: 1,
+    answer: '01001111',
+    // Constraint 1: One required input (A must be 0)
+    fixedInputs: { A: 0 , H:1},
+    // Constraint 2: 3 compulsory gate values
+    fixedNodes: { G1: 1,G3: 1, G6: 1, G8: 1 },
+    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 1 },
   },
   {
     name: '03 · Recursive Singularity',
-    gates: ['AND', 'AND', 'OR', 'NOR', 'AND', 'NAND', 'NOR'],
-    target: 1,
-    fixedNodes: { G2: 1, G6: 0 }, // Layer 1: G2=1, Layer 2: G6=0, Layer 3: G7=1 (target)
-    fixedInputs: { C: 1 },
-    initialInputs: { A: 0, B: 0, C: 1, D: 0, E: 0, F: 0 },
+    // Gates designed so answer 01000100 (D) is the unique solution
+    gates: ['NOR', 'XOR', 'OR', 'OR', 'OR', 'NAND', 'NOR', 'OR'],
+    target: 0,
+    answer: '01000100',
+    // Constraint 1: One required input (A must be 0)
+    fixedInputs: { A: 0 },
+    // Constraint 2: 2 compulsory gate values
+    fixedNodes: { G3: 1, G7: 0 },
+    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
   },
 ];
 
