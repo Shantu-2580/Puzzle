@@ -100,17 +100,17 @@ const level = (name, circuit, gates, target, answer, fixedInputs, fixedNodes, in
 });
 
 export const SETS = {
-  A: { name: 'Set A: END', description: 'Spell "END" by solving all three levels', word: 'END', levels: [
+  A: { name: 'Set A', description: 'Spell "END" by solving all three levels', word: 'END', levels: [
     level('A1 · The Echo Chamber', LEVEL_CIRCUITS.A1, ['OR', 'NAND', 'NAND', 'NOR', 'NOR', 'XOR', 'OR', 'XNOR'], 1, '01000101', { B: 1 }, { G4: 1, G7: 1 }, { ...DEFAULT_INPUTS, F: 1 }),
     level('A2 · The Nexus Gate', LEVEL_CIRCUITS.A2, ['NOR', 'NAND', 'XNOR', 'OR', 'OR', 'XNOR', 'XNOR', 'OR'], 1, '01001110', { B: 1 }, { G3: 1, G5: 0 }),
     level('A3 · The Delta Lock', LEVEL_CIRCUITS.A3, ['NAND', 'XOR', 'OR', 'OR', 'OR', 'XNOR', 'AND', 'NAND'], 1, '01000100', { G: 0 }, { G3: 0, G6: 1 }),
   ] },
-  B: { name: 'Set B: SAD', description: 'Spell "SAD" by solving all three levels', word: 'SAD', levels: [
+  B: { name: 'Set B', description: 'Spell "SAD" by solving all three levels', word: 'SAD', levels: [
     level('B1 · The Signal Gate', LEVEL_CIRCUITS.B1, ['NOR', 'NAND', 'NAND', 'OR', 'NOR', 'XNOR', 'AND', 'OR'], 0, '01010011', { G: 1 }, { G2: 0, G5: 1 }, { ...DEFAULT_INPUTS, H: 1 }),
     level('B2 · The Alpha Cipher', LEVEL_CIRCUITS.B2, ['NOR', 'NOR', 'OR', 'XOR', 'AND', 'AND', 'AND', 'AND'], 1, '01000001', { B: 1 }, { G3: 0, G5: 1 }),
     level('B3 · The Delta Vault', LEVEL_CIRCUITS.B3, ['NOR', 'AND', 'XOR', 'OR', 'NOR', 'OR', 'NAND', 'AND'], 1, '01000100', { A: 0 }, { G2: 1, G6: 0 }),
   ] },
-  C: { name: 'Set C: WET', description: 'Spell "WET" by solving all three levels', word: 'WET', levels: [
+  C: { name: 'Set C', description: 'Spell "WET" by solving all three levels', word: 'WET', levels: [
     level('C1 · The Waveform Gate', LEVEL_CIRCUITS.C1, ['AND', 'NOR', 'NAND', 'AND', 'OR', 'OR', 'AND', 'NOR'], 0, '01010111', { F: 1 }, { G1: 1, G5: 0 }),
     level('C2 · The Echo Vault', LEVEL_CIRCUITS.C2, ['OR', 'AND', 'AND', 'AND', 'AND', 'OR', 'AND', 'AND'], 1, '01000101', { A: 0 }, { G1: 0, G6: 0 }, { ...DEFAULT_INPUTS, H: 1 }),
     level('C3 · The Terminal Node', LEVEL_CIRCUITS.C3, ['AND', 'OR', 'OR', 'NOR', 'AND', 'NOR', 'AND', 'NAND'], 0, '01010100', { F: 1 }, { G3: 0, G7: 1 }),

@@ -53,8 +53,6 @@ html, body, #root {
 
 @media (max-width: 639px) {
   html { font-size: 16px; }
-
-  button, [role="button"] { min-height: 44px; }
 }
 
 ::selection {

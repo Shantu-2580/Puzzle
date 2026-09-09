@@ -31,9 +31,15 @@ const ResultTerminal = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const isQuietFail = !success && !hasConstraintFailure;
+
   return (
     <section
-      className="p-3 sm:p-4 rounded-lg border flex flex-col items-stretch justify-between gap-2.5 flex-shrink-0 sm:sticky sm:relative bottom-0 z-20 shadow-2xl"
+      className={`rounded-lg border flex-col items-stretch justify-between flex-shrink-0 z-20 shadow-2xl ${
+        isQuietFail || success
+          ? 'hidden md:flex p-3 sm:p-4 gap-2.5'
+          : 'flex p-2 sm:p-4 gap-1.5 sm:gap-2.5'
+      }`}
       style={{
         borderColor: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',
         background: success
@@ -59,7 +65,7 @@ const ResultTerminal = ({
           />
           <div>
             <div
-              className="text-sm sm:text-sm font-bold tracking-[0.08em] sm:tracking-[0.15em] uppercase leading-snug"
+              className="text-[11px] sm:text-sm font-bold tracking-wide sm:tracking-[0.15em] uppercase leading-snug"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 color: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',
@@ -69,17 +75,17 @@ const ResultTerminal = ({
               }}
             >
               {success
-                ? `✦ LEVEL BREACHED · TARGET OUTPUT SATISFIED ✦`
+                ? `Level cleared`
                 : failedFixedNode
-                  ? '⚠️ NODE LOCK: COMPULSORY NODE CONSTRAINT FAILED'
+                  ? `Lock ${failedFixedNode[0]} needs ${failedFixedNode[1]}`
                   : failedFixedInput
-                    ? '⚠️ INPUT LOCK: REQUIRED INPUT CONSTRAINT FAILED'
+                    ? `Set ${failedFixedInput[0]} to ${failedFixedInput[1]}`
                     : answerKeyMismatch
-                      ? '⚠️ ANSWER KEY: INPUT PATTERN NOT VALID'
-                    : '✖ ACCESS DENIED'}
+                      ? 'Not the valid input pattern'
+                    : 'Access denied'}
             </div>
             <div
-              className="text-[12px] sm:text-[10px] mt-1 tracking-wide font-semibold leading-snug"
+              className="hidden sm:block text-[10px] mt-1 tracking-wide font-semibold leading-snug"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 color: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',

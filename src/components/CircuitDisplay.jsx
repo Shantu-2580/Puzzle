@@ -12,21 +12,20 @@ const CircuitDisplay = ({
   setLayoutMode,
 }) => {
   return (
-    <section className="min-h-0 flex-1 p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#07111F] overflow-hidden custom-scrollbar relative">
-      <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+    <section className="min-h-0 flex-1 p-1 sm:p-3 rounded-lg border border-[#1E344D] bg-[#07111F] overflow-hidden custom-scrollbar relative">
+      <div className="hidden md:flex items-center justify-between mb-2 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <h2
-            className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold text-[#AAB7C4]"
+            className="text-[11px] tracking-[0.25em] uppercase font-bold text-[#AAB7C4]"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
             Circuit Schematic
           </h2>
           <span className="text-[9px] px-2 py-0.5 rounded bg-[#F4C95D]/10 text-[#F4C95D] border border-[#F4C95D]/30 font-mono">
-            {layoutMode === 'tree' ? '🌲 PORTRAIT TREE (Bottom → Top)' : '➡️ FLOW (Left → Right)'}
+            {layoutMode === 'tree' ? 'Tree' : 'Flow'}
           </span>
         </div>
 
-        {/* Layout Toggle Buttons */}
         <div className="flex items-center gap-1 bg-[#0D1B2A] p-1 rounded-lg border border-[#1E344D]">
           <button
             onClick={() => setLayoutMode('tree')}
@@ -37,7 +36,7 @@ const CircuitDisplay = ({
             }`}
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            🌲 Tree
+            Tree
           </button>
           <button
             onClick={() => setLayoutMode('flow')}
@@ -48,7 +47,7 @@ const CircuitDisplay = ({
             }`}
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
-            ➡️ Flow
+            Flow
           </button>
         </div>
       </div>

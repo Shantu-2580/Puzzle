@@ -271,11 +271,10 @@ export default function App() {
         layoutMode={layoutMode}
         setLayoutMode={setLayoutMode}
         selectedSet={selectedSet}
-        SETS={SETS}
       />
 
       {/* ── MAIN CONTENT ───────────────────────── */}
-      <main className="min-h-0 flex-1 flex flex-col p-2.5 sm:p-3 md:p-4 gap-2.5 sm:gap-3 overflow-hidden">
+      <main className="min-h-0 flex-1 flex flex-col p-1.5 sm:p-3 md:p-4 gap-1.5 sm:gap-3 overflow-hidden">
         <ControlPanel
           currentLevel={levelNum}
           TOTAL_LEVELS={TOTAL_LEVELS_IN_SET}
@@ -335,7 +334,7 @@ export default function App() {
       </main>
 
       {/* ── FOOTER ─────────────────────────────── */}
-      <footer className="border-t border-[#1E344D] px-3 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between flex-shrink-0 bg-[#07111F]">
+      <footer className="hidden sm:flex border-t border-[#1E344D] px-3 sm:px-6 py-1.5 sm:py-2 items-center justify-between flex-shrink-0 bg-[#07111F]">
         <span
           className="text-[8px] sm:text-[9px] tracking-[0.2em] uppercase font-semibold"
           style={{ fontFamily: "'Orbitron', sans-serif", color: '#AAB7C4' }}
@@ -346,7 +345,7 @@ export default function App() {
           className="text-[8px] sm:text-[9px] tracking-wider"
           style={{ fontFamily: "'JetBrains Mono', monospace", color: '#AAB7C4' }}
         >
-          {selectedSet ? `Set ${selectedSet}: ${SETS[selectedSet].word}` : 'Select a Set'} ·
+          {selectedSet ? `Set ${selectedSet}` : 'Select a Set'} ·
           {completedLevels.length}/${TOTAL_LEVELS_IN_SET} cleared ·
           Total: {formatTime(totalMs)}
         </span>
