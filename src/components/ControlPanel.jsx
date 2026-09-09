@@ -5,6 +5,7 @@ const ControlPanel = ({
   currentLevel,
   completedLevels,
   jumpedLevels = [],
+  onSelectLevel,
   PUZZLES,
   inputs,
   _setInputs,
@@ -17,7 +18,7 @@ const ControlPanel = ({
   randomizeInputs,
 }) => {
   return (
-    <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#0D1B2A]">
+    <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
       {/* Level Progress Tracker */}
       <div className="order-2 flex items-center gap-1.5 overflow-x-auto py-1 lg:order-none">
         {PUZZLES.map((p, idx) => {
@@ -48,8 +49,10 @@ const ControlPanel = ({
           }
 
           return (
-            <div
+            <button
               key={idx}
+              type="button"
+              onClick={() => onSelectLevel?.(idx)}
               className="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase border flex-shrink-0 transition-all"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
@@ -61,16 +64,16 @@ const ControlPanel = ({
               title={p.name}
             >
               {statusLabel}
-            </div>
+            </button>
           );
         })}
       </div>
 
       {/* Level Info & Target Output */}
       <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:min-w-0 lg:flex-1 lg:justify-end">
-        <div className="flex w-full min-w-0 flex-col items-stretch gap-2 lg:w-auto lg:flex-row lg:items-center">
-          <div className="flex w-full items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-3 py-2 sm:px-4 sm:py-2.5 lg:w-auto lg:min-w-[180px] lg:py-2">
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-[#AAB7C4] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+        <div className="flex w-full min-w-0 flex-col items-stretch gap-2 xl:w-auto xl:flex-row xl:items-center">
+          <div className="flex w-full flex-shrink-0 items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-2.5 py-1.5 sm:px-4 sm:py-2.5 xl:w-auto xl:min-w-[180px] xl:py-2">
+            <span className="text-[9px] sm:text-xs uppercase tracking-[0.18em] text-[#AAB7C4] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
               Target Output
             </span>
             <span className="text-2xl sm:text-3xl font-black text-[#3DD6D0]" style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 12px rgba(61,214,208,0.5)' }}>
@@ -78,7 +81,7 @@ const ControlPanel = ({
             </span>
           </div>
 
-          <span className="text-sm sm:text-base font-bold text-[#F5F1E8] lg:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <span className="min-w-0 text-sm sm:text-base font-bold text-[#F5F1E8] xl:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             {puzzle.name}
           </span>
         </div>
@@ -93,7 +96,7 @@ const ControlPanel = ({
               return (
                 <div
                   key={nodeLabel}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded border-2 text-xs sm:text-sm font-bold"
+                  className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded border-2 text-[10px] sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#3DD6D0' : '#E89B4A',
@@ -118,7 +121,7 @@ const ControlPanel = ({
               return (
                 <div
                   key={inputKey}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded border-2 text-xs sm:text-sm font-bold"
+                  className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded border-2 text-[10px] sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#48C78E' : '#E89B4A',

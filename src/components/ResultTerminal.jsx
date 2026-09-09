@@ -17,7 +17,7 @@ const ResultTerminal = ({
   restartAll,
 }) => {
   const [copied, setCopied] = useState(false);
-  const finalOutput = gateOutputs[6];
+  const finalOutput = gateOutputs[7];
   const hasConstraintFailure = failedFixedInput || failedFixedNode;
 
   const handleCopyVerification = () => {

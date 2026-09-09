@@ -10,8 +10,8 @@ const InputMatrix = ({
   startTimerIfNeeded,
 }) => {
   return (
-    <section className="p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#0D1B2A]">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2 border-b border-[#1E344D] pb-2">
+    <section className="p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-1.5 sm:mb-2 gap-1.5 border-b border-[#1E344D] pb-1.5 sm:pb-2">
         <div className="flex items-center gap-2">
           <h2
             className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold text-[#3DD6D0]"
@@ -44,7 +44,7 @@ const InputMatrix = ({
                 toggleInput(label);
               }}
               disabled={levelCleared}
-              className="relative flex h-18 min-w-0 flex-col items-center justify-center rounded-xl border-2 cursor-pointer select-none disabled:cursor-not-allowed active:scale-95 touch-manipulation transition-all duration-200 sm:h-22"
+              className="relative flex h-14 min-w-0 flex-col items-center justify-center rounded-xl border-2 cursor-pointer select-none disabled:cursor-not-allowed active:scale-95 touch-manipulation transition-all duration-200 sm:h-20"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 borderColor: on ? '#F4C95D' : isFixed ? (fixedMet ? '#48C78E' : '#E89B4A') : '#1E344D',

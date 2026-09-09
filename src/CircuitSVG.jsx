@@ -206,7 +206,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
       <svg
         viewBox="0 0 540 680"
         preserveAspectRatio="xMidYMid meet"
-        className="w-full h-auto max-w-[540px] mx-auto"
+        className="w-full h-full max-w-[540px] mx-auto"
       >
         <defs>
           <filter id="neon-glow">
@@ -438,7 +438,7 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
     <svg
       viewBox="0 0 1080 520"
       preserveAspectRatio="xMidYMid meet"
-      className="w-full h-auto min-w-[760px] lg:min-w-full max-h-[520px]"
+      className="w-full h-full min-w-[760px] lg:min-w-full max-h-full"
     >
       <defs>
         <filter id="neon-glow-flow">

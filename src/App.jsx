@@ -82,7 +82,7 @@ export default function App() {
     [inputs, gateTypes]
   );
 
-  const finalOutput = gateOutputs[6];
+  const finalOutput = gateOutputs[7];
 
   // Win conditions: Final output matches target + Fixed input requirements match
   const isTargetOutputMet = finalOutput === puzzle.target;
@@ -190,6 +190,12 @@ export default function App() {
     }
   }, [currentLevel, initLevel]);
 
+  const selectLevel = useCallback((levelIndex) => {
+    if (levelIndex === currentLevel || levelIndex < 0 || levelIndex >= TOTAL_LEVELS) return;
+    setCurrentLevel(levelIndex);
+    initLevel(levelIndex);
+  }, [currentLevel, initLevel]);
+
   const restartAll = useCallback(() => {
     setCurrentLevel(0);
     setCompletedLevels([]);
@@ -203,7 +209,7 @@ export default function App() {
   const levelNum = currentLevel + 1;
 
   return (
-    <div className="min-h-screen bg-void flex flex-col relative w-full overflow-x-hidden pb-16 sm:pb-0">
+    <div className="h-[100dvh] min-h-0 bg-void flex flex-col relative w-full overflow-hidden">
       <GameHeader
         currentLevel={currentLevel}
         TOTAL_LEVELS={TOTAL_LEVELS}
@@ -217,10 +223,11 @@ export default function App() {
       />
 
       {/* ── MAIN CONTENT ───────────────────────── */}
-      <main className="flex-1 flex flex-col p-3 sm:p-4 md:p-6 gap-3 sm:gap-4 overflow-x-hidden">
+      <main className="min-h-0 flex-1 flex flex-col p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 overflow-hidden">
         <ControlPanel
           currentLevel={currentLevel}
           completedLevels={completedLevels}
+          onSelectLevel={selectLevel}
           PUZZLES={PUZZLES}
           inputs={inputs}
           setInputs={setInputs}
@@ -270,7 +277,7 @@ export default function App() {
       </main>
 
       {/* ── FOOTER ─────────────────────────────── */}
-      <footer className="border-t border-[#1E344D] px-4 sm:px-6 py-2.5 flex items-center justify-between flex-shrink-0 bg-[#07111F]">
+      <footer className="border-t border-[#1E344D] px-3 sm:px-6 py-1.5 sm:py-2 flex items-center justify-between flex-shrink-0 bg-[#07111F]">
         <span
           className="text-[8px] sm:text-[9px] tracking-[0.2em] uppercase font-semibold"
           style={{ fontFamily: "'Orbitron', sans-serif", color: '#AAB7C4' }}
