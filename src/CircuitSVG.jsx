@@ -247,8 +247,8 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         ))}
 
         {/* Wires */}
-        {treeWires.map(w => (
-          <WireTree key={w.key} {...w} />
+        {treeWires.map(({ key, ...wire }) => (
+          <WireTree key={key} {...wire} />
         ))}
 
         {/* Bottom Inputs (A–H) */}
@@ -475,8 +475,8 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         </text>
       ))}
 
-      {flowWires.map(w => (
-        <WireFlow key={w.key} {...w} />
+      {flowWires.map(({ key, ...wire }) => (
+        <WireFlow key={key} {...wire} />
       ))}
 
       {Object.entries(FLOW_INPUT_POS).map(([label, pos]) => {

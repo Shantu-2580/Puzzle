@@ -67,9 +67,9 @@ const ControlPanel = ({
       </div>
 
       {/* Level Info & Target Output */}
-      <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:w-auto lg:justify-end">
-        <div className="flex w-full min-w-0 flex-col items-stretch gap-2">
-          <div className="flex items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-3 py-2 sm:px-4 sm:py-2.5">
+      <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:min-w-0 lg:flex-1 lg:justify-end">
+        <div className="flex w-full min-w-0 flex-col items-stretch gap-2 lg:w-auto lg:flex-row lg:items-center">
+          <div className="flex w-full items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-3 py-2 sm:px-4 sm:py-2.5 lg:w-auto lg:min-w-[180px] lg:py-2">
             <span className="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-[#AAB7C4] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
               Target Output
             </span>
@@ -78,7 +78,7 @@ const ControlPanel = ({
             </span>
           </div>
 
-          <span className="text-sm sm:text-base font-bold text-[#F5F1E8]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <span className="text-sm sm:text-base font-bold text-[#F5F1E8] lg:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             {puzzle.name}
           </span>
         </div>
