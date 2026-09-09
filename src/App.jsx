@@ -4,7 +4,7 @@ import ControlPanel from './components/ControlPanel';
 import InputMatrix from './components/InputMatrix';
 import CircuitDisplay from './components/CircuitDisplay';
 import ResultTerminal from './components/ResultTerminal';
-import { evaluate, findSolution, SETS, GATE_LABELS, formatTime, DEFAULT_INPUTS, INPUT_LABELS, CIRCUIT } from './engine';
+import { evaluate, findSolution, matchesAnswerKey, SETS, GATE_LABELS, formatTime, DEFAULT_INPUTS, INPUT_LABELS } from './engine';
 
 export default function App() {
   // Set selection state
@@ -96,17 +96,16 @@ export default function App() {
 
   // Circuit evaluation
   const gateOutputs = useMemo(
-    () => evaluate(inputs, gateTypes),
-    [inputs, gateTypes]
+    () => evaluate(inputs, gateTypes, currentLevel?.circuit),
+    [inputs, gateTypes, currentLevel?.circuit]
   );
 
   const finalOutput = gateOutputs[7];
 
   // Win conditions: Final output matches target + Fixed input requirements match
   const isTargetOutputMet = currentLevel ? finalOutput === currentLevel.target : false;
-  const isAnswerKeyMet = currentLevel
-    ? INPUT_LABELS.every((label, index) => inputs[label] === Number(currentLevel.answer?.[index]))
-    : false;
+  const isAnswerKeyMet = currentLevel ? matchesAnswerKey(inputs, currentLevel.answer) : false;
+  const answerKeyMismatch = currentLevel && !isAnswerKeyMet;
   const failedFixedInput = useMemo(() => {
     if (!currentLevel || !currentLevel.fixedInputs) return null;
     return Object.entries(currentLevel.fixedInputs).find(
@@ -117,7 +116,7 @@ export default function App() {
   const failedFixedNode = useMemo(() => {
     if (!currentLevel || !currentLevel.fixedNodes) return null;
     return Object.entries(currentLevel.fixedNodes).find(([nodeLabel, reqVal]) => {
-      const nodeIdx = CIRCUIT.find(n => n.label === nodeLabel)?.id;
+      const nodeIdx = currentLevel.circuit.find(n => n.label === nodeLabel)?.id;
       return nodeIdx !== undefined && gateOutputs[nodeIdx] !== reqVal;
     });
   }, [currentLevel?.fixedNodes, gateOutputs]);
@@ -310,6 +309,7 @@ export default function App() {
           gateTypes={gateTypes}
           fixedInputs={currentLevel?.fixedInputs}
           fixedNodes={currentLevel?.fixedNodes}
+          circuit={currentLevel?.circuit}
           layoutMode={layoutMode}
           setLayoutMode={setLayoutMode}
         />
@@ -318,6 +318,7 @@ export default function App() {
           success={success}
           failedFixedInput={failedFixedInput}
           failedFixedNode={failedFixedNode}
+          answerKeyMismatch={answerKeyMismatch}
           gateOutputs={gateOutputs}
           GATE_LABELS={GATE_LABELS}
           puzzle={currentLevel}
@@ -542,7 +543,7 @@ export default function App() {
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  {allCleared ? 'Choose Another Set' : 'Next Level →'}
+                  {allCleared ? 'Finish' : 'Next Level →'}
                 </button>
               </div>
 

@@ -7,6 +7,7 @@ const CircuitDisplay = ({
   gateTypes,
   fixedInputs,
   fixedNodes,
+  circuit,
   layoutMode,
   setLayoutMode,
 }) => {
@@ -58,6 +59,7 @@ const CircuitDisplay = ({
         gateTypes={gateTypes}
         fixedInputs={fixedInputs}
         fixedNodes={fixedNodes}
+        circuit={circuit}
         layoutMode={layoutMode}
       />
     </section>

@@ -1,5 +1,4 @@
 import React from 'react';
-import { CIRCUIT } from '../engine';
 
 const ControlPanel = ({
   currentLevel,
@@ -96,7 +95,7 @@ const ControlPanel = ({
         {puzzle?.fixedNodes && (
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {Object.entries(puzzle.fixedNodes).map(([nodeLabel, reqVal]) => {
-              const nodeIdx = CIRCUIT.find(n => n.label === nodeLabel)?.id;
+              const nodeIdx = puzzle?.circuit?.find(n => n.label === nodeLabel)?.id;
               const curVal = gateOutputs && nodeIdx !== undefined ? gateOutputs[nodeIdx] : undefined;
               const ok = curVal === reqVal;
               return (

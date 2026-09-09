@@ -5,6 +5,7 @@ const ResultTerminal = ({
   success,
   failedFixedInput,
   failedFixedNode,
+  answerKeyMismatch,
   gateOutputs,
   GATE_LABELS: _GATE_LABELS,
   puzzle,
@@ -20,7 +21,7 @@ const ResultTerminal = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const finalOutput = gateOutputs[7];
-  const hasConstraintFailure = failedFixedInput || failedFixedNode;
+  const hasConstraintFailure = failedFixedInput || failedFixedNode || answerKeyMismatch;
 
   const handleCopyVerification = () => {
     if (navigator.clipboard) {
@@ -73,6 +74,8 @@ const ResultTerminal = ({
                   ? '⚠️ NODE LOCK: COMPULSORY NODE CONSTRAINT FAILED'
                   : failedFixedInput
                     ? '⚠️ INPUT LOCK: REQUIRED INPUT CONSTRAINT FAILED'
+                    : answerKeyMismatch
+                      ? '⚠️ ANSWER KEY: INPUT PATTERN NOT VALID'
                     : '✖ ACCESS DENIED'}
             </div>
             <div
@@ -88,7 +91,9 @@ const ResultTerminal = ({
                   ? `Required Node ${failedFixedNode[0]} must output ${failedFixedNode[1]} to satisfy compulsory layer lock.`
                   : failedFixedInput
                     ? `Target output met, but Input ${failedFixedInput[0]} must be set to ${failedFixedInput[1]}.`
-                    : `Output: ${finalOutput} ≠ Target: ${puzzle?.target}. Adjust A–F.`}
+                    : answerKeyMismatch
+                      ? 'Target and visible locks may pass, but this input pattern is not the valid solution for this level.'
+                      : `Output: ${finalOutput} ≠ Target: ${puzzle?.target}. Adjust the inputs.`}
             </div>
           </div>
         </div>
