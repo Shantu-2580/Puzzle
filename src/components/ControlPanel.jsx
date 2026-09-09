@@ -23,7 +23,7 @@ const ControlPanel = ({
   const SET_LEVELS = currentSet ? currentSet.levels : [];
 
   return (
-    <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
+    <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
       {/* Level Progress Tracker */}
       <div className="order-2 flex items-center gap-1.5 overflow-x-auto py-1 lg:order-none">
         {SET_LEVELS.map((level, idx) => {
@@ -58,7 +58,7 @@ const ControlPanel = ({
               key={idx}
               type="button"
               onClick={() => onSelectLevel?.(idx)}
-              className="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase border flex-shrink-0 transition-all"
+              className="px-3 py-1.5 rounded text-[11px] font-bold tracking-wide uppercase border flex-shrink-0 transition-all"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 background: badgeBg,
@@ -75,7 +75,7 @@ const ControlPanel = ({
       </div>
 
       {/* Level Info & Target Output */}
-      <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:min-w-0 lg:flex-1 lg:justify-end">
+      <div className="order-1 flex w-full flex-wrap items-center justify-between gap-2.5 lg:order-none lg:min-w-0 lg:flex-1 lg:justify-end">
         <div className="flex w-full min-w-0 flex-col items-stretch gap-2 xl:w-auto xl:flex-row xl:items-center">
           <div className="flex w-full flex-shrink-0 items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-2.5 py-1.5 sm:px-4 sm:py-2.5 xl:w-auto xl:min-w-[180px] xl:py-2">
             <span className="text-[9px] sm:text-xs uppercase tracking-[0.18em] text-[#AAB7C4] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
@@ -86,14 +86,14 @@ const ControlPanel = ({
             </span>
           </div>
 
-          <span className="min-w-0 text-sm sm:text-base font-bold text-[#F5F1E8] xl:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <span className="min-w-0 text-base sm:text-base font-bold text-[#F5F1E8] xl:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             {puzzle?.name}
           </span>
         </div>
 
         {/* Compulsory Node Locks (1 per layer) */}
         {puzzle?.fixedNodes && (
-          <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="flex flex-wrap items-center gap-1.5">
             {Object.entries(puzzle.fixedNodes).map(([nodeLabel, reqVal]) => {
               const nodeIdx = puzzle?.circuit?.find(n => n.label === nodeLabel)?.id;
               const curVal = gateOutputs && nodeIdx !== undefined ? gateOutputs[nodeIdx] : undefined;
@@ -101,7 +101,7 @@ const ControlPanel = ({
               return (
                 <div
                   key={nodeLabel}
-                  className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded border-2 text-[10px] sm:text-sm font-bold"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded border-2 text-[11px] sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#3DD6D0' : '#E89B4A',
@@ -119,14 +119,14 @@ const ControlPanel = ({
 
         {/* Fixed Input Constraints */}
         {puzzle?.fixedInputs && (
-          <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="flex flex-wrap items-center gap-1.5">
             {Object.entries(puzzle.fixedInputs).map(([inputKey, reqVal]) => {
               const curVal = inputs ? inputs[inputKey] : undefined;
               const ok = curVal === reqVal;
               return (
                 <div
                   key={inputKey}
-                  className="flex items-center gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded border-2 text-[10px] sm:text-sm font-bold"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded border-2 text-[11px] sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#48C78E' : '#E89B4A',
@@ -143,11 +143,11 @@ const ControlPanel = ({
         )}
 
         {/* Action Control Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex w-full sm:w-auto items-center gap-2 sm:gap-2">
           <button
             onClick={resetInputs}
             disabled={levelCleared}
-            className="px-3.5 py-1.5 sm:py-2 rounded border text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:text-[#F5F1E8] hover:border-[#5B8DEF] active:bg-[#1E344D]/40 transition-colors"
+            className="flex-1 sm:flex-none px-3.5 py-2 sm:py-2 rounded border text-sm sm:text-xs font-bold uppercase tracking-wide cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:text-[#F5F1E8] hover:border-[#5B8DEF] active:bg-[#1E344D]/40 transition-colors"
             style={{
               fontFamily: "'Orbitron', sans-serif",
               borderColor: '#1E344D',
@@ -160,7 +160,7 @@ const ControlPanel = ({
           <button
             onClick={randomizeInputs}
             disabled={levelCleared}
-            className="px-3.5 py-1.5 sm:py-2 rounded border text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:text-[#F5F1E8] hover:border-[#5B8DEF] active:bg-[#1E344D]/40 transition-colors"
+            className="flex-1 sm:flex-none px-3.5 py-2 sm:py-2 rounded border text-sm sm:text-xs font-bold uppercase tracking-wide cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed hover:text-[#F5F1E8] hover:border-[#5B8DEF] active:bg-[#1E344D]/40 transition-colors"
             style={{
               fontFamily: "'Orbitron', sans-serif",
               borderColor: '#1E344D',

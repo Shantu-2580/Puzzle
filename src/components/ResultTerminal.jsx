@@ -33,7 +33,7 @@ const ResultTerminal = ({
 
   return (
     <section
-      className="p-3 sm:p-4 rounded-lg border flex flex-col items-stretch justify-between gap-2.5 flex-shrink-0 sticky sm:relative bottom-0 z-20 shadow-2xl"
+      className="p-3 sm:p-4 rounded-lg border flex flex-col items-stretch justify-between gap-2.5 flex-shrink-0 sm:sticky sm:relative bottom-0 z-20 shadow-2xl"
       style={{
         borderColor: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',
         background: success
@@ -59,7 +59,7 @@ const ResultTerminal = ({
           />
           <div>
             <div
-              className="text-xs sm:text-sm font-bold tracking-[0.15em] uppercase"
+              className="text-sm sm:text-sm font-bold tracking-[0.08em] sm:tracking-[0.15em] uppercase leading-snug"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 color: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',
@@ -79,7 +79,7 @@ const ResultTerminal = ({
                     : '✖ ACCESS DENIED'}
             </div>
             <div
-              className="text-[10px] mt-0.5 tracking-wider font-semibold"
+              className="text-[12px] sm:text-[10px] mt-1 tracking-wide font-semibold leading-snug"
               style={{
                 fontFamily: "'JetBrains Mono', monospace",
                 color: success ? '#48C78E' : hasConstraintFailure ? '#E89B4A' : '#E76F51',

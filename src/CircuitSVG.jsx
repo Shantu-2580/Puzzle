@@ -66,12 +66,12 @@ function GateNode({ node, position, type, output, fixedValue, mode }) {
   return (
     <g transform={`translate(${position.x}, ${position.y})`}>
       <rect width={gateWidth} height={gateHeight} rx={mode === 'tree' ? 6 : 7} fill={active ? 'rgba(244,201,93,0.14)' : '#0D1B2A'} stroke={locked ? (lockMet ? '#3DD6D0' : '#E89B4A') : active ? '#F4C95D' : '#1E344D'} strokeWidth={locked || active ? 2.5 : 1.5} style={{ transition: 'all 0.3s ease', filter: active ? 'drop-shadow(0 0 10px rgba(244,201,93,0.4))' : 'none' }} />
-      <text x={mode === 'tree' ? 6 : 8} y={mode === 'tree' ? 14 : 16} fill="#AAB7C4" fontSize={mode === 'tree' ? 9 : 10} fontFamily="'Orbitron', sans-serif" fontWeight="700">{node.label}</text>
+      <text x={mode === 'tree' ? 6 : 8} y={mode === 'tree' ? 14 : 16} fill="#AAB7C4" fontSize={mode === 'tree' ? 10.5 : 11} fontFamily="'Orbitron', sans-serif" fontWeight="700">{node.label}</text>
       {locked && <g transform={`translate(${gateWidth - (mode === 'tree' ? 24 : 32)}, 3)`}>
         <rect width={mode === 'tree' ? 20 : 22} height={mode === 'tree' ? 12 : 13} rx={3} fill={lockMet ? 'rgba(61,214,208,0.25)' : 'rgba(232,155,74,0.25)'} stroke={lockMet ? '#3DD6D0' : '#E89B4A'} />
         <text x={mode === 'tree' ? 10 : 11} y={9} fill={lockMet ? '#3DD6D0' : '#E89B4A'} fontSize={mode === 'tree' ? 7.5 : 8} fontFamily="'JetBrains Mono', monospace" fontWeight="800" textAnchor="middle">🔒{fixedValue}</text>
       </g>}
-      <text x={gateWidth / 2} y={mode === 'tree' ? 28 : 30} fill={active ? '#F4C95D' : '#3DD6D0'} fontSize={mode === 'tree' ? 12.5 : 14} fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle">{type}</text>
+      <text x={gateWidth / 2} y={mode === 'tree' ? 29 : 31} fill={active ? '#F4C95D' : '#3DD6D0'} fontSize={mode === 'tree' ? 14 : 15} fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle">{type}</text>
       <circle cx={mode === 'tree' ? gateWidth / 2 : gateWidth - 10} cy={mode === 'tree' ? 4 : gateHeight / 2} r={mode === 'tree' ? 4.5 : 5.5} fill={active ? '#F4C95D' : '#1B2B3E'} stroke={active ? '#F4C95D' : '#1E344D'} strokeWidth={1.5} />
     </g>
   );

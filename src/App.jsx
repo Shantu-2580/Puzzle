@@ -275,7 +275,7 @@ export default function App() {
       />
 
       {/* ── MAIN CONTENT ───────────────────────── */}
-      <main className="min-h-0 flex-1 flex flex-col p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 overflow-hidden">
+      <main className="min-h-0 flex-1 flex flex-col p-2.5 sm:p-3 md:p-4 gap-2.5 sm:gap-3 overflow-hidden">
         <ControlPanel
           currentLevel={levelNum}
           TOTAL_LEVELS={TOTAL_LEVELS_IN_SET}

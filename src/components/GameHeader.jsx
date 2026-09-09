@@ -32,7 +32,7 @@ const GameHeader = ({
             }}
           />
           <h1
-            className="text-sm sm:text-lg md:text-xl font-bold tracking-[0.15em] uppercase"
+            className="text-[15px] sm:text-lg md:text-xl font-bold tracking-[0.08em] sm:tracking-[0.15em] uppercase"
             style={{
               fontFamily: "'Orbitron', sans-serif",
               color: '#F4C95D',
@@ -45,14 +45,14 @@ const GameHeader = ({
       </div>
 
       {/* Timers & Status Header */}
-      <div className="flex items-center gap-1.5 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-[#1E344D] pt-1.5 sm:pt-0">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-[#1E344D] pt-2 sm:pt-0">
         {/* Level Timer (Starts on first input) */}
         <div className="flex items-center gap-1.5 bg-[#0D1B2A] border border-[#1E344D] px-2.5 py-1 rounded relative">
-          <span className="text-[9px] sm:text-[10px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <span className="text-[10px] sm:text-[10px] tracking-wide uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             ⏱ LVL:
           </span>
           <span
-            className={`text-xs sm:text-[10px] font-bold ${
+            className={`text-sm sm:text-[10px] font-bold ${
               isTimerStarted ? 'text-[#3DD6D0]' : 'text-[#E89B4A]'
             }`}
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -60,7 +60,7 @@ const GameHeader = ({
             {formatTime(elapsedMs)}
           </span>
           {!isTimerStarted && !levelCleared && (
-            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-[#E89B4A] tracking-wider px-1 rounded bg-[#E89B4A]/10 border border-[#E89B4A]/30 animate-pulse ml-1">
+            <span className="text-[9px] sm:text-[9px] font-bold uppercase text-[#E89B4A] tracking-wide px-1.5 rounded bg-[#E89B4A]/10 border border-[#E89B4A]/30 animate-pulse ml-1">
               TAP TO START
             </span>
           )}
@@ -68,10 +68,10 @@ const GameHeader = ({
 
         {/* Total Timer */}
         <div className="flex items-center gap-1.5 sm:gap-2 bg-[#0D1B2A] border border-[#1E344D] px-2.5 py-1 rounded">
-          <span className="text-[9px] sm:text-[10px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <span className="text-[10px] sm:text-[10px] tracking-wide uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             TOTAL:
           </span>
-          <span className="text-xs sm:text-[10px] font-bold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <span className="text-sm sm:text-[10px] font-bold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             {formatTime(totalMs)}
           </span>
         </div>
@@ -81,7 +81,7 @@ const GameHeader = ({
           {selectedSet ? (
             <>
               <span
-                className="text-[10px] sm:text-[11px] tracking-[0.15em] uppercase font-bold"
+                className="text-[11px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.15em] uppercase font-bold"
                 style={{ fontFamily: "'Orbitron', sans-serif", color: '#F4C95D' }}
               >
                 Set {selectedSet}: {currentSetWord}

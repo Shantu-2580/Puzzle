@@ -10,18 +10,18 @@ const InputMatrix = ({
   startTimerIfNeeded,
 }) => {
   return (
-    <section className="p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-1.5 sm:mb-2 gap-1.5 border-b border-[#1E344D] pb-1.5 sm:pb-2">
-        <div className="flex items-center gap-2">
+    <section className="p-2.5 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 sm:mb-2 gap-1.5 border-b border-[#1E344D] pb-2 sm:pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
           <h2
-            className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-bold text-[#3DD6D0]"
+            className="text-[11px] sm:text-[11px] tracking-[0.14em] sm:tracking-[0.25em] uppercase font-bold text-[#3DD6D0]"
             style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
             Input Matrix (Tap A – H)
           </h2>
           {!isTimerStarted && !levelCleared && (
-            <span className="text-[8px] text-[#E89B4A] uppercase font-mono font-bold animate-pulse">
-              ⚡ Tap input to start timer
+            <span className="text-[10px] sm:text-[8px] text-[#E89B4A] uppercase font-mono font-bold animate-pulse leading-tight">
+              ⚡ Tap any input to start the timer
             </span>
           )}
         </div>
@@ -59,7 +59,7 @@ const InputMatrix = ({
             >
               {isFixed && (
                 <span
-                  className="absolute top-1 right-1 text-[7px] sm:text-[8px] font-bold px-1 rounded border"
+                  className="absolute top-1 right-1 hidden sm:inline text-[8px] font-bold px-1 rounded border"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: fixedMet ? '#48C78E' : '#E89B4A',
