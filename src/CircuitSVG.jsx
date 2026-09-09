@@ -1,8 +1,10 @@
 import React, { useMemo } from 'react';
 
 const INPUT_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const TREE = { width: 540, height: 680, gateWidth: 80, gateHeight: 42 };
-const FLOW = { width: 1080, height: 520, gateWidth: 104, gateHeight: 46 };
+const TREE = { width: 540, height: 680, gateWidth: 86, gateHeight: 46 };
+const FLOW = { width: 1080, height: 520, gateWidth: 112, gateHeight: 50 };
+const FONT_UI = "'Outfit', sans-serif";
+const FONT_DATA = "'IBM Plex Mono', monospace";
 
 function distribute(count, start, end) {
   if (count === 1) return [(start + end) / 2];
@@ -42,7 +44,19 @@ function Wire({ mode, x1, y1, x2, y2, powered }) {
   const d = mode === 'tree'
     ? `M${x1},${y1} C${x1},${middle} ${x2},${middle} ${x2},${y2}`
     : `M${x1},${y1} C${middle},${y1} ${middle},${y2} ${x2},${y2}`;
-  return <path d={d} fill="none" stroke={powered ? '#F4C95D' : '#1E344D'} strokeWidth={powered ? 3.5 : 2.2} strokeLinecap="round" style={{ transition: 'stroke 0.3s ease, filter 0.3s ease', filter: powered ? 'drop-shadow(0 0 6px #F4C95D)' : 'none' }} />;
+  return (
+    <path
+      d={d}
+      fill="none"
+      stroke={powered ? 'url(#wireOn)' : '#243044'}
+      strokeWidth={powered ? 3.2 : 1.6}
+      strokeLinecap="round"
+      style={{
+        transition: 'stroke 0.35s ease, stroke-width 0.35s ease, filter 0.35s ease',
+        filter: powered ? 'drop-shadow(0 0 5px rgba(212,180,131,0.7))' : 'none',
+      }}
+    />
+  );
 }
 
 function InputNode({ label, position, value, fixedValue, mode }) {
@@ -50,10 +64,30 @@ function InputNode({ label, position, value, fixedValue, mode }) {
   const locked = fixedValue !== undefined;
   const lockMet = locked && value === fixedValue;
   const offsetX = mode === 'tree' ? -18 : -26;
+  const stroke = on ? '#d4b483' : locked ? (lockMet ? '#5fbf9a' : '#e08a3c') : '#2a3648';
   return (
     <g transform={`translate(${position.x}, ${position.y})`}>
-      <rect x={offsetX} y={-14} width={mode === 'tree' ? 36 : 40} height={28} rx={6} fill={on ? 'rgba(244,201,93,0.25)' : '#0D1B2A'} stroke={on ? '#F4C95D' : locked ? (lockMet ? '#48C78E' : '#E89B4A') : '#1E344D'} strokeWidth={on || locked ? 2.5 : 1.5} />
-      <text x={mode === 'tree' ? 0 : -6} y={4} fill={on ? '#F4C95D' : locked ? (lockMet ? '#48C78E' : '#E89B4A') : '#AAB7C4'} fontSize="14" fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle">{label}</text>
+      <rect
+        x={offsetX}
+        y={-14}
+        width={mode === 'tree' ? 36 : 42}
+        height={28}
+        rx={4}
+        fill={on ? 'rgba(212,180,131,0.18)' : '#10151f'}
+        stroke={stroke}
+        strokeWidth={on || locked ? 1.8 : 1.2}
+      />
+      <text
+        x={mode === 'tree' ? 0 : -5}
+        y={5}
+        fill={on ? '#d4b483' : locked ? (lockMet ? '#5fbf9a' : '#e08a3c') : '#9aa6b4'}
+        fontSize="13"
+        fontFamily={FONT_UI}
+        fontWeight="600"
+        textAnchor="middle"
+      >
+        {label}
+      </text>
     </g>
   );
 }
@@ -63,16 +97,50 @@ function GateNode({ node, position, type, output, fixedValue, mode }) {
   const active = output === 1;
   const locked = fixedValue !== undefined;
   const lockMet = locked && output === fixedValue;
+  const stroke = locked ? (lockMet ? '#6ec8c4' : '#e08a3c') : active ? '#d4b483' : '#2a3648';
   return (
     <g transform={`translate(${position.x}, ${position.y})`}>
-      <rect width={gateWidth} height={gateHeight} rx={mode === 'tree' ? 6 : 7} fill={active ? 'rgba(244,201,93,0.14)' : '#0D1B2A'} stroke={locked ? (lockMet ? '#3DD6D0' : '#E89B4A') : active ? '#F4C95D' : '#1E344D'} strokeWidth={locked || active ? 2.5 : 1.5} style={{ transition: 'all 0.3s ease', filter: active ? 'drop-shadow(0 0 10px rgba(244,201,93,0.4))' : 'none' }} />
-      <text x={mode === 'tree' ? 6 : 8} y={mode === 'tree' ? 14 : 16} fill="#AAB7C4" fontSize={mode === 'tree' ? 10.5 : 11} fontFamily="'Orbitron', sans-serif" fontWeight="700">{node.label}</text>
-      {locked && <g transform={`translate(${gateWidth - (mode === 'tree' ? 24 : 32)}, 3)`}>
-        <rect width={mode === 'tree' ? 20 : 22} height={mode === 'tree' ? 12 : 13} rx={3} fill={lockMet ? 'rgba(61,214,208,0.25)' : 'rgba(232,155,74,0.25)'} stroke={lockMet ? '#3DD6D0' : '#E89B4A'} />
-        <text x={mode === 'tree' ? 10 : 11} y={9} fill={lockMet ? '#3DD6D0' : '#E89B4A'} fontSize={mode === 'tree' ? 7.5 : 8} fontFamily="'JetBrains Mono', monospace" fontWeight="800" textAnchor="middle">🔒{fixedValue}</text>
-      </g>}
-      <text x={gateWidth / 2} y={mode === 'tree' ? 29 : 31} fill={active ? '#F4C95D' : '#3DD6D0'} fontSize={mode === 'tree' ? 14 : 15} fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle">{type}</text>
-      <circle cx={mode === 'tree' ? gateWidth / 2 : gateWidth - 10} cy={mode === 'tree' ? 4 : gateHeight / 2} r={mode === 'tree' ? 4.5 : 5.5} fill={active ? '#F4C95D' : '#1B2B3E'} stroke={active ? '#F4C95D' : '#1E344D'} strokeWidth={1.5} />
+      <rect
+        width={gateWidth}
+        height={gateHeight}
+        rx={8}
+        fill={active ? 'rgba(212,180,131,0.12)' : '#10151f'}
+        stroke={stroke}
+        strokeWidth={locked || active ? 1.8 : 1.2}
+        style={{
+          transition: 'fill 0.3s ease, stroke 0.3s ease, filter 0.3s ease',
+          filter: active ? 'drop-shadow(0 0 10px rgba(212,180,131,0.28))' : 'none',
+        }}
+      />
+      <text x={10} y={16} fill="#9aa6b4" fontSize="11" fontFamily={FONT_UI} fontWeight="500">
+        {node.label}
+      </text>
+      {locked && (
+        <g transform={`translate(${gateWidth - 28}, 6)`}>
+          <rect width={20} height={12} rx={6} fill={lockMet ? 'rgba(110,200,196,0.2)' : 'rgba(224,138,60,0.2)'} stroke={lockMet ? '#6ec8c4' : '#e08a3c'} />
+          <text x={10} y={10} fill={lockMet ? '#6ec8c4' : '#e08a3c'} fontSize="8" fontFamily={FONT_DATA} fontWeight="600" textAnchor="middle">
+            {fixedValue}
+          </text>
+        </g>
+      )}
+      <text
+        x={gateWidth / 2}
+        y={mode === 'tree' ? 32 : 34}
+        fill={active ? '#d4b483' : '#6ec8c4'}
+        fontSize={mode === 'tree' ? 13 : 14}
+        fontFamily={FONT_UI}
+        fontWeight="600"
+        textAnchor="middle"
+      >
+        {type}
+      </text>
+      <circle
+        cx={mode === 'tree' ? gateWidth / 2 : gateWidth - 10}
+        cy={mode === 'tree' ? 5 : gateHeight / 2}
+        r={4.5}
+        fill={active ? '#d4b483' : '#243044'}
+        stroke={active ? '#d4b483' : '#2a3648'}
+      />
     </g>
   );
 }
@@ -107,21 +175,57 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
 
   return (
     <svg viewBox={`0 0 ${layout.width} ${layout.height}`} preserveAspectRatio="xMidYMid meet" className={mode === 'tree' ? 'w-full h-full max-w-[540px] mx-auto' : 'w-full h-full min-w-[760px] lg:min-w-full max-h-full'}>
-      <pattern id={`grid-${mode}`} width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="0.5" fill="#1E344D" opacity="0.5" /></pattern>
-      <rect width={layout.width} height={layout.height} fill={`url(#grid-${mode})`} />
-      {mode === 'tree' ? <>
-        <text x={15} y={625} fill="#1E344D" fontSize="9" fontFamily="'Orbitron', sans-serif" fontWeight="800" letterSpacing="2">INPUTS (A-H)</text>
-        {layers.map(layer => <text key={layer} x={15} y={(layer === 4 ? 65 : 600 - layer * 145) - 12} fill="#1E344D" fontSize="9" fontFamily="'Orbitron', sans-serif" fontWeight="800" letterSpacing="2">{layer === 4 ? 'G8 OUTPUT STAGE' : `LAYER ${layer} GATES`}</text>)}
-      </> : layers.map(layer => <text key={layer} x={layer === 4 ? 900 : 120 + layer * 180} y={25} fill="#1E344D" fontSize="10" fontFamily="'Orbitron', sans-serif" fontWeight="800" letterSpacing="2">{layer === 4 ? 'G8 OUTPUT STAGE' : `LAYER ${layer}`}</text>)}
+      <defs>
+        <linearGradient id="wireOn" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#e8d3a8" />
+          <stop offset="100%" stopColor="#d4b483" />
+        </linearGradient>
+      </defs>
+      {mode === 'tree' ? (
+        <>
+          <text x={15} y={625} fill="#3a4658" fontSize="10" fontFamily={FONT_UI} fontWeight="500">Inputs</text>
+          {layers.map(layer => (
+            <text key={layer} x={15} y={(layer === 4 ? 65 : 600 - layer * 145) - 12} fill="#3a4658" fontSize="10" fontFamily={FONT_UI} fontWeight="500">
+              {layer === 4 ? 'Output' : `Layer ${layer}`}
+            </text>
+          ))}
+        </>
+      ) : layers.map(layer => (
+        <text key={layer} x={layer === 4 ? 900 : 120 + layer * 180} y={24} fill="#3a4658" fontSize="11" fontFamily={FONT_UI} fontWeight="500">
+          {layer === 4 ? 'Output' : `Layer ${layer}`}
+        </text>
+      ))}
       {wires.map(({ key, ...wire }) => <Wire key={key} mode={mode} {...wire} />)}
       {outputWire && <Wire mode={mode} {...outputWire} powered={gateOutputs[7] === 1} />}
       {INPUT_LABELS.map(label => <InputNode key={label} label={label} position={inputPositions[label]} value={inputs[label]} fixedValue={fixedInputs?.[label]} mode={mode} />)}
       {circuit.map(node => <GateNode key={node.id} node={node} position={positions[node.id]} type={gateTypes[node.id]} output={gateOutputs[node.id]} fixedValue={fixedNodes?.[node.label]} mode={mode} />)}
-      {outputCenter && <g>
-        <circle cx={outputCenter.x} cy={outputCenter.y} r={24} fill={gateOutputs[7] === 1 ? 'rgba(72,199,142,0.22)' : 'rgba(231,111,81,0.14)'} stroke={gateOutputs[7] === 1 ? '#48C78E' : '#E76F51'} strokeWidth={2.5} />
-        <text x={outputCenter.x} y={outputCenter.y + 1} fill={gateOutputs[7] === 1 ? '#48C78E' : '#E76F51'} fontSize="18" fontFamily="'Orbitron', sans-serif" fontWeight="900" textAnchor="middle" dominantBaseline="middle">{gateOutputs[7]}</text>
-        <text x={outputCenter.x} y={outputCenter.y + 40} fill="#AAB7C4" fontSize="9" fontFamily="'Orbitron', sans-serif" fontWeight="800" textAnchor="middle" letterSpacing="2">SYSTEM OUTPUT</text>
-      </g>}
+      {outputCenter && (
+        <g>
+          <circle
+            cx={outputCenter.x}
+            cy={outputCenter.y}
+            r={22}
+            fill={gateOutputs[7] === 1 ? 'rgba(95,191,154,0.16)' : 'rgba(217,106,85,0.12)'}
+            stroke={gateOutputs[7] === 1 ? '#5fbf9a' : '#d96a55'}
+            strokeWidth={1.8}
+          />
+          <text
+            x={outputCenter.x}
+            y={outputCenter.y + 1}
+            fill={gateOutputs[7] === 1 ? '#5fbf9a' : '#d96a55'}
+            fontSize="16"
+            fontFamily={FONT_DATA}
+            fontWeight="600"
+            textAnchor="middle"
+            dominantBaseline="middle"
+          >
+            {gateOutputs[7]}
+          </text>
+          <text x={outputCenter.x} y={outputCenter.y + 38} fill="#9aa6b4" fontSize="10" fontFamily={FONT_UI} fontWeight="500" textAnchor="middle">
+            Output
+          </text>
+        </g>
+      )}
     </svg>
   );
 }

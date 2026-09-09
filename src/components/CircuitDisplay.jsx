@@ -12,55 +12,40 @@ const CircuitDisplay = ({
   setLayoutMode,
 }) => {
   return (
-    <section className="min-h-0 flex-1 p-1 sm:p-3 rounded-lg border border-[#1E344D] bg-[#07111F] overflow-hidden custom-scrollbar relative">
-      <div className="hidden md:flex items-center justify-between mb-2 flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <h2
-            className="text-[11px] tracking-[0.25em] uppercase font-bold text-[#AAB7C4]"
-            style={{ fontFamily: "'Orbitron', sans-serif" }}
-          >
-            Circuit Schematic
-          </h2>
-          <span className="text-[9px] px-2 py-0.5 rounded bg-[#F4C95D]/10 text-[#F4C95D] border border-[#F4C95D]/30 font-mono">
-            {layoutMode === 'tree' ? 'Tree' : 'Flow'}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-1 bg-[#0D1B2A] p-1 rounded-lg border border-[#1E344D]">
+    <section className="min-h-0 flex-1 overflow-hidden relative px-1 sm:px-2 flex flex-col">
+      <div className="hidden md:flex items-center justify-between mb-2 flex-shrink-0">
+        <p className="text-[12px] text-[#9aa6b4] font-ui">Schematic</p>
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setLayoutMode('tree')}
-            className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-              layoutMode === 'tree'
-                ? 'bg-[#F4C95D]/20 text-[#F4C95D] border border-[#F4C95D]'
-                : 'text-[#AAB7C4] hover:text-[#F5F1E8]'
+            className={`px-3 py-1 rounded-full text-[12px] font-ui ${
+              layoutMode === 'tree' ? 'text-[#d4b483] bg-[#d4b483]/10' : 'text-[#9aa6b4] hover:text-[#ede6d6]'
             }`}
-            style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
             Tree
           </button>
           <button
             onClick={() => setLayoutMode('flow')}
-            className={`px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-              layoutMode === 'flow'
-                ? 'bg-[#3DD6D0]/20 text-[#3DD6D0] border border-[#3DD6D0]'
-                : 'text-[#AAB7C4] hover:text-[#F5F1E8]'
+            className={`px-3 py-1 rounded-full text-[12px] font-ui ${
+              layoutMode === 'flow' ? 'text-[#6ec8c4] bg-[#6ec8c4]/10' : 'text-[#9aa6b4] hover:text-[#ede6d6]'
             }`}
-            style={{ fontFamily: "'Orbitron', sans-serif" }}
           >
             Flow
           </button>
         </div>
       </div>
 
-      <CircuitSVG
-        inputs={inputs}
-        gateOutputs={gateOutputs}
-        gateTypes={gateTypes}
-        fixedInputs={fixedInputs}
-        fixedNodes={fixedNodes}
-        circuit={circuit}
-        layoutMode={layoutMode}
-      />
+      <div className="min-h-0 flex-1 rounded-xl hairline overflow-hidden">
+        <CircuitSVG
+          inputs={inputs}
+          gateOutputs={gateOutputs}
+          gateTypes={gateTypes}
+          fixedInputs={fixedInputs}
+          fixedNodes={fixedNodes}
+          circuit={circuit}
+          layoutMode={layoutMode}
+        />
+      </div>
     </section>
   );
 };
