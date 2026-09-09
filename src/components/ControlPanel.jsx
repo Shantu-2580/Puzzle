@@ -3,10 +3,12 @@ import { CIRCUIT } from '../engine';
 
 const ControlPanel = ({
   currentLevel,
+  TOTAL_LEVELS,
   completedLevels,
   jumpedLevels = [],
   onSelectLevel,
-  PUZZLES,
+  SETS,
+  selectedSet,
   inputs,
   _setInputs,
   levelCleared,
@@ -17,19 +19,23 @@ const ControlPanel = ({
   resetInputs,
   randomizeInputs,
 }) => {
+  // Get current set levels
+  const currentSet = selectedSet && SETS[selectedSet] ? SETS[selectedSet] : null;
+  const SET_LEVELS = currentSet ? currentSet.levels : [];
+
   return (
     <section className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border border-[#1E344D] bg-[#0D1B2A] flex-shrink-0">
       {/* Level Progress Tracker */}
       <div className="order-2 flex items-center gap-1.5 overflow-x-auto py-1 lg:order-none">
-        {PUZZLES.map((p, idx) => {
-          const isCurrent = idx === currentLevel;
+        {SET_LEVELS.map((level, idx) => {
+          const isCurrent = idx === currentLevel - 1; // Adjust for 1-based display
           const isCleared = completedLevels.includes(idx);
           const isJumped = jumpedLevels.includes(idx);
 
           let badgeBg = '#152538';
           let badgeBorder = '#1E344D';
           let badgeColor = '#AAB7C4';
-          let statusLabel = `LVL ${idx + 1}`;
+          let statusLabel = `L${idx + 1}`;
 
           if (isCleared) {
             badgeBg = 'rgba(72,199,142,0.2)';
@@ -61,7 +67,7 @@ const ControlPanel = ({
                 color: badgeColor,
                 boxShadow: isCurrent ? '0 0 10px rgba(244,201,93,0.3)' : 'none',
               }}
-              title={p.name}
+              title={level.name}
             >
               {statusLabel}
             </button>
@@ -77,17 +83,17 @@ const ControlPanel = ({
               Target Output
             </span>
             <span className="text-2xl sm:text-3xl font-black text-[#3DD6D0]" style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 12px rgba(61,214,208,0.5)' }}>
-              {puzzle.target}
+              {puzzle?.target}
             </span>
           </div>
 
           <span className="min-w-0 text-sm sm:text-base font-bold text-[#F5F1E8] xl:whitespace-nowrap" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-            {puzzle.name}
+            {puzzle?.name}
           </span>
         </div>
 
         {/* Compulsory Node Locks (1 per layer) */}
-        {puzzle.fixedNodes && (
+        {puzzle?.fixedNodes && (
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {Object.entries(puzzle.fixedNodes).map(([nodeLabel, reqVal]) => {
               const nodeIdx = CIRCUIT.find(n => n.label === nodeLabel)?.id;
@@ -113,7 +119,7 @@ const ControlPanel = ({
         )}
 
         {/* Fixed Input Constraints */}
-        {puzzle.fixedInputs && (
+        {puzzle?.fixedInputs && (
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {Object.entries(puzzle.fixedInputs).map(([inputKey, reqVal]) => {
               const curVal = inputs ? inputs[inputKey] : undefined;

@@ -4,16 +4,20 @@ import ControlPanel from './components/ControlPanel';
 import InputMatrix from './components/InputMatrix';
 import CircuitDisplay from './components/CircuitDisplay';
 import ResultTerminal from './components/ResultTerminal';
-import { evaluate, findSolution, PUZZLES, GATE_LABELS, formatTime, DEFAULT_INPUTS, INPUT_LABELS, CIRCUIT } from './engine';
-
-const TOTAL_LEVELS = PUZZLES.length;
-const VALID_ADMIN_PASSWORDS = ['MINOTAUR', 'ADMIN', 'GATEKEEPER', '1234'];
+import { evaluate, findSolution, SETS, GATE_LABELS, formatTime, DEFAULT_INPUTS, INPUT_LABELS, CIRCUIT } from './engine';
 
 export default function App() {
-  const [currentLevel, setCurrentLevel] = useState(0);         // 0-indexed
-  const [completedLevels, setCompletedLevels] = useState([]);  // list of cleared level indices
+  // Set selection state
+  const [selectedSet, setSelectedSet] = useState(null); // 'A', 'B', or 'C'
+  const [showSetSelection, setShowSetSelection] = useState(true);
+
+  // Level progression state (within selected set)
+  const [currentLevelIndex, setCurrentLevelIndex] = useState(0); // 0-indexed within set
+  const [completedLevels, setCompletedLevels] = useState([]);  // list of cleared level indices within set
   const [levelCleared, setLevelCleared] = useState(false);      // level solved?
-  const [allCleared, setAllCleared] = useState(false);          // all levels beaten?
+  const [allCleared, setAllCleared] = useState(false);          // all levels in set beaten?
+
+  // Input and layout state
   const [inputs, setInputs] = useState(DEFAULT_INPUTS);
   const [layoutMode, setLayoutMode] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
@@ -30,8 +34,11 @@ export default function App() {
   const [levelInputs, setLevelInputs] = useState([]);           // array of input configs used to clear each level
   const clearTimerRef = useRef(null);
 
-  const puzzle = PUZZLES[currentLevel];
-  const gateTypes = puzzle.gates;
+  // Get current set and level data
+  const currentSet = selectedSet ? SETS[selectedSet] : null;
+  const TOTAL_LEVELS_IN_SET = currentSet ? currentSet.levels.length : 0;
+  const currentLevel = currentSet && currentSet.levels[currentLevelIndex] ? currentSet.levels[currentLevelIndex] : null;
+  const gateTypes = currentLevel ? currentLevel.gates : [];
 
   // Helper to start the level timer on first input action
   const startTimerIfNeeded = useCallback(() => {
@@ -44,10 +51,12 @@ export default function App() {
   // Compulsory layout enforcer: Larger screens (>=768px) use 'flow', Mobile (<768px) uses 'tree'
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setLayoutMode('flow');
-      } else {
-        setLayoutMode('tree');
+      if (typeof window !== 'undefined') {
+        if (window.innerWidth >= 768) {
+          setLayoutMode('flow');
+        } else {
+          setLayoutMode('tree');
+        }
       }
     };
     handleResize();
@@ -64,18 +73,27 @@ export default function App() {
     return () => clearInterval(interval);
   }, [isTimerStarted, levelStartTime, levelCleared, allCleared]);
 
-  
-  // Reset level inputs & timer when level changes
-  const initLevel = useCallback((lvlIdx) => {
-    const p = PUZZLES[lvlIdx];
-    setInputs(p.initialInputs || DEFAULT_INPUTS);
+  // Initialize level when set or level changes
+  const initLevel = useCallback((setKey, levelIdx) => {
+    if (!setKey || !SETS[setKey]) return;
+
+    const levelData = SETS[setKey].levels[levelIdx];
+    if (!levelData) return;
+
+    setInputs(levelData.initialInputs || DEFAULT_INPUTS);
     setLevelCleared(false);
     setIsTimerStarted(false);
     setLevelStartTime(null);
     setElapsedMs(0);
   }, []);
 
-  
+  // Initialize first level when set is selected
+  useEffect(() => {
+    if (selectedSet) {
+      initLevel(selectedSet, 0);
+    }
+  }, [selectedSet, initLevel]);
+
   // Circuit evaluation
   const gateOutputs = useMemo(
     () => evaluate(inputs, gateTypes),
@@ -85,23 +103,26 @@ export default function App() {
   const finalOutput = gateOutputs[7];
 
   // Win conditions: Final output matches target + Fixed input requirements match
-  const isTargetOutputMet = finalOutput === puzzle.target;
+  const isTargetOutputMet = currentLevel ? finalOutput === currentLevel.target : false;
+  const isAnswerKeyMet = currentLevel
+    ? INPUT_LABELS.every((label, index) => inputs[label] === Number(currentLevel.answer?.[index]))
+    : false;
   const failedFixedInput = useMemo(() => {
-    if (!puzzle.fixedInputs) return null;
-    return Object.entries(puzzle.fixedInputs).find(
+    if (!currentLevel || !currentLevel.fixedInputs) return null;
+    return Object.entries(currentLevel.fixedInputs).find(
       ([inputKey, reqVal]) => inputs[inputKey] !== reqVal
     );
-  }, [puzzle.fixedInputs, inputs]);
+  }, [currentLevel?.fixedInputs, inputs]);
 
   const failedFixedNode = useMemo(() => {
-    if (!puzzle.fixedNodes) return null;
-    return Object.entries(puzzle.fixedNodes).find(([nodeLabel, reqVal]) => {
+    if (!currentLevel || !currentLevel.fixedNodes) return null;
+    return Object.entries(currentLevel.fixedNodes).find(([nodeLabel, reqVal]) => {
       const nodeIdx = CIRCUIT.find(n => n.label === nodeLabel)?.id;
       return nodeIdx !== undefined && gateOutputs[nodeIdx] !== reqVal;
     });
-  }, [puzzle.fixedNodes, gateOutputs]);
+  }, [currentLevel?.fixedNodes, gateOutputs]);
 
-  const success = isTargetOutputMet && !failedFixedInput && !failedFixedNode;
+  const success = currentLevel && isTargetOutputMet && isAnswerKeyMet && !failedFixedInput && !failedFixedNode;
 
   // Total time = pure sum of time spent in each cleared level
   const totalMs = useMemo(() => {
@@ -117,23 +138,23 @@ export default function App() {
         setElapsedMs(finalLvlTime);
         setLevelTimes(prev => {
           const next = [...prev];
-          next[currentLevel] = finalLvlTime;
+          next[currentLevelIndex] = finalLvlTime;
           return next;
         });
         setLevelInputs(prev => {
           const next = [...prev];
-          next[currentLevel] = inputs;
+          next[currentLevelIndex] = inputs;
           return next;
         });
         setCompletedLevels(prev => {
-          const next = prev.includes(currentLevel) ? prev : [...prev, currentLevel];
-          if (next.length === TOTAL_LEVELS) setAllCleared(true);
+          const next = prev.includes(currentLevelIndex) ? prev : [...prev, currentLevelIndex];
+          if (next.length === TOTAL_LEVELS_IN_SET) setAllCleared(true);
           return next;
         });
       }, 600);
     }
     return () => clearTimeout(clearTimerRef.current);
-  }, [success, levelCleared, currentLevel, levelStartTime, inputs]);
+  }, [success, levelCleared, currentLevelIndex, levelStartTime, inputs, TOTAL_LEVELS_IN_SET]);
 
   const toggleInput = useCallback((label) => {
     if (levelCleared) return;
@@ -144,8 +165,10 @@ export default function App() {
   const resetInputs = useCallback(() => {
     if (levelCleared) return;
     startTimerIfNeeded();
-    setInputs(puzzle.initialInputs || DEFAULT_INPUTS);
-  }, [levelCleared, puzzle, startTimerIfNeeded]);
+    if (currentSet && currentSet.levels[currentLevelIndex]) {
+      setInputs(currentSet.levels[currentLevelIndex].initialInputs || DEFAULT_INPUTS);
+    }
+  }, [levelCleared, startTimerIfNeeded, currentSet, currentLevelIndex]);
 
   const randomizeInputs = useCallback(() => {
     if (levelCleared) return;
@@ -159,82 +182,114 @@ export default function App() {
   const handleAdminSkipLevel = useCallback(() => {
     if (levelCleared) return;
     startTimerIfNeeded();
-    const sol = findSolution(puzzle);
-    if (sol) {
-      setInputs(sol);
-    } else {
-      setLevelCleared(true);
+    if (currentLevel) {
+      const sol = findSolution(currentLevel);
+      if (sol) {
+        setInputs(sol);
+      } else {
+        setLevelCleared(true);
+      }
     }
-  }, [puzzle, levelCleared, startTimerIfNeeded]);
-
-  // Password Verification for Admin Auth
-  const handleAdminAuthSubmit = (e) => {
-    e.preventDefault();
-    const cleanInput = adminPasswordInput.trim().toUpperCase();
-    if (VALID_ADMIN_PASSWORDS.includes(cleanInput)) {
-      setIsAdmin(true);
-      setShowAdminAuthModal(false);
-      setAdminPasswordInput('');
-      setAdminAuthError(false);
-    } else {
-      setAdminAuthError(true);
-    }
-  };
-
+  }, [currentLevel, levelCleared, startTimerIfNeeded]);
 
   const goToNextLevel = useCallback(() => {
-    if (currentLevel < TOTAL_LEVELS - 1) {
-      const nextIdx = currentLevel + 1;
-      setCurrentLevel(nextIdx);
-      initLevel(nextIdx);
+    if (currentLevelIndex < TOTAL_LEVELS_IN_SET - 1) {
+      const nextIdx = currentLevelIndex + 1;
+      setCurrentLevelIndex(nextIdx);
+      initLevel(selectedSet, nextIdx);
     }
-  }, [currentLevel, initLevel]);
+  }, [currentLevelIndex, TOTAL_LEVELS_IN_SET, selectedSet, initLevel]);
 
   const selectLevel = useCallback((levelIndex) => {
-    if (levelIndex === currentLevel || levelIndex < 0 || levelIndex >= TOTAL_LEVELS) return;
-    setCurrentLevel(levelIndex);
-    initLevel(levelIndex);
-  }, [currentLevel, initLevel]);
+    if (levelIndex === currentLevelIndex || levelIndex < 0 || levelIndex >= TOTAL_LEVELS_IN_SET) return;
+    setCurrentLevelIndex(levelIndex);
+    initLevel(selectedSet, levelIndex);
+  }, [currentLevelIndex, TOTAL_LEVELS_IN_SET, selectedSet, initLevel]);
 
-  const restartAll = useCallback(() => {
-    setCurrentLevel(0);
+  const restartSet = useCallback(() => {
+    setCurrentLevelIndex(0);
     setCompletedLevels([]);
     setLevelCleared(false);
     setAllCleared(false);
     setLevelTimes([]);
-    initLevel(0);
-  }, [initLevel]);
+    setLevelInputs([]);
+    if (selectedSet) {
+      initLevel(selectedSet, 0);
+    }
+  }, [selectedSet, initLevel]);
 
-  const isLastLevel = currentLevel === TOTAL_LEVELS - 1;
-  const levelNum = currentLevel + 1;
+  const isLastLevel = currentLevelIndex === TOTAL_LEVELS_IN_SET - 1;
+  const levelNum = currentLevelIndex + 1;
+
+  // Render set selection screen if no set is selected
+  if (showSetSelection && !selectedSet) {
+    return (
+      <div className="h-[100dvh] min-h-0 bg-void flex items-center justify-center p-6">
+        <div className="w-full max-w-md space-y-4">
+          <p className="text-center text-lg font-bold uppercase tracking-[0.15em] text-[#F4C95D]"
+             style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            Select Your Set
+          </p>
+          {['A', 'B', 'C'].map(setKey => (
+                  <button
+                    key={setKey}
+                    onClick={() => {
+                      setSelectedSet(setKey);
+                      setShowSetSelection(false);
+                    }}
+                    className="w-full px-6 py-5 rounded-xl border-2 font-bold text-xl uppercase tracking-[0.15em]
+                              transition-all duration-300 hover:brightness-125"
+                    style={{
+                      fontFamily: "'Orbitron', sans-serif",
+                      background: setKey === 'A' ? 'rgba(244,201,93,0.1)' :
+                                 setKey === 'B' ? 'rgba(232,155,74,0.1)' :
+                                                  'rgba(61,214,208,0.1)',
+                      color: setKey === 'A' ? '#F4C95D' :
+                             setKey === 'B' ? '#E89B4A' :
+                                                '#3DD6D0',
+                      borderColor: setKey === 'A' ? '#F4C95D' :
+                                   setKey === 'B' ? '#E89B4A' :
+                                                    '#3DD6D0'
+                    }}
+                  >
+                    Set {setKey}
+                  </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] min-h-0 bg-void flex flex-col relative w-full overflow-hidden">
       <GameHeader
-        currentLevel={currentLevel}
-        TOTAL_LEVELS={TOTAL_LEVELS}
-        completedLevels={completedLevels}
+        currentLevel={levelNum}
+        TOTAL_LEVELS={TOTAL_LEVELS_IN_SET}
         levelCleared={levelCleared}
         isTimerStarted={isTimerStarted}
         elapsedMs={elapsedMs}
         totalMs={totalMs}
         layoutMode={layoutMode}
         setLayoutMode={setLayoutMode}
+        selectedSet={selectedSet}
+        SETS={SETS}
       />
 
       {/* ── MAIN CONTENT ───────────────────────── */}
       <main className="min-h-0 flex-1 flex flex-col p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 overflow-hidden">
         <ControlPanel
-          currentLevel={currentLevel}
+          currentLevel={levelNum}
+          TOTAL_LEVELS={TOTAL_LEVELS_IN_SET}
           completedLevels={completedLevels}
           onSelectLevel={selectLevel}
-          PUZZLES={PUZZLES}
+          SETS={SETS}
+          selectedSet={selectedSet}
           inputs={inputs}
           setInputs={setInputs}
           levelCleared={levelCleared}
-          puzzle={puzzle}
+          puzzle={currentLevel}
           gateOutputs={gateOutputs}
-          fixedInputs={puzzle.fixedInputs}
+          fixedInputs={currentLevel?.fixedInputs}
           GATE_LABELS={GATE_LABELS}
           resetInputs={resetInputs}
           randomizeInputs={randomizeInputs}
@@ -242,7 +297,7 @@ export default function App() {
 
         <InputMatrix
           inputs={inputs}
-          fixedInputs={puzzle.fixedInputs}
+          fixedInputs={currentLevel?.fixedInputs}
           levelCleared={levelCleared}
           toggleInput={toggleInput}
           isTimerStarted={isTimerStarted}
@@ -253,8 +308,8 @@ export default function App() {
           inputs={inputs}
           gateOutputs={gateOutputs}
           gateTypes={gateTypes}
-          fixedInputs={puzzle.fixedInputs}
-          fixedNodes={puzzle.fixedNodes}
+          fixedInputs={currentLevel?.fixedInputs}
+          fixedNodes={currentLevel?.fixedNodes}
           layoutMode={layoutMode}
           setLayoutMode={setLayoutMode}
         />
@@ -265,14 +320,16 @@ export default function App() {
           failedFixedNode={failedFixedNode}
           gateOutputs={gateOutputs}
           GATE_LABELS={GATE_LABELS}
-          puzzle={puzzle}
+          puzzle={currentLevel}
           levelNum={levelNum}
           elapsedMs={elapsedMs}
           totalMs={totalMs}
           levelCleared={levelCleared}
           isLastLevel={isLastLevel}
           goToNextLevel={goToNextLevel}
-          restartAll={restartAll}
+          restartSet={restartSet}
+          selectedSet={selectedSet}
+          SETS={SETS}
         />
       </main>
 
@@ -282,17 +339,19 @@ export default function App() {
           className="text-[8px] sm:text-[9px] tracking-[0.2em] uppercase font-semibold"
           style={{ fontFamily: "'Orbitron', sans-serif", color: '#AAB7C4' }}
         >
-          Minotaur Logic Systems v1.0
+          Minotaur Logic Systems v2.0
         </span>
         <span
           className="text-[8px] sm:text-[9px] tracking-wider"
           style={{ fontFamily: "'JetBrains Mono', monospace", color: '#AAB7C4' }}
         >
-          {completedLevels.length}/{TOTAL_LEVELS} cleared · Total: {formatTime(totalMs)}
+          {selectedSet ? `Set ${selectedSet}: ${SETS[selectedSet].word}` : 'Select a Set'} ·
+          {completedLevels.length}/${TOTAL_LEVELS_IN_SET} cleared ·
+          Total: {formatTime(totalMs)}
         </span>
       </footer>
 
-      {/* ── HIGH-TECH GRAND VICTORY & LEVEL COMPLETE DASHBOARD OVERLAY ─────────────── */}
+      {/* ── SET COMPLETION & GRAND VICTORY DASHBOARD OVERLAY ─────────────── */}
       {levelCleared && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
@@ -307,7 +366,8 @@ export default function App() {
             className="w-full relative my-auto rounded-2xl border-2 overflow-hidden flex flex-col shadow-2xl"
             style={{
               maxWidth: allCleared ? '1020px' : '560px',
-              borderColor: '#F4C95D',
+              borderColor: allCleared ? '#F4C95D' : currentSet?.name.includes('Set A') ? '#F4C95D' :
+                           currentSet?.name.includes('Set B') ? '#E89B4A' : '#3DD6D0',
               background: 'linear-gradient(180deg, #0D1B2A 0%, #07111F 100%)',
               boxShadow: '0 0 60px rgba(244,201,93,0.25), inset 0 0 40px rgba(244,201,93,0.03)',
               animation: 'scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -341,39 +401,43 @@ export default function App() {
                   className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-[0.2em] uppercase"
                   style={{
                     fontFamily: "'Orbitron', sans-serif",
-                    color: '#F4C95D',
+                    color: allCleared ? '#F4C95D' :
+                           currentSet?.name.includes('Set A') ? '#F4C95D' :
+                           currentSet?.name.includes('Set B') ? '#E89B4A' : '#3DD6D0',
                     textShadow: '0 0 20px rgba(244,201,93,0.7), 0 0 40px rgba(244,201,93,0.3)',
                   }}
                 >
-                  {allCleared ? 'SYSTEM FULLY BREACHED' : `LEVEL ${levelNum} CLEARED`}
+                  {allCleared ? `SET ${selectedSet} COMPLETE` : `LEVEL ${levelNum} CLEARED`}
                 </h2>
 
                 <p
-                  className="text-[10px] sm:text-xs md:text-sm tracking-widest text-[#AAB7C4]"
+                  className="text-[10px] sm:text-[11px] tracking-widest text-[#AAB7C4]"
                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   {allCleared
-                    ? 'ALL 3 LOGIC GATES OVERRIDDEN · SYSTEM BREACHED'
-                    : puzzle.name}
+                    ? `SET ${selectedSet}: ${currentSet?.word} MASTERED`
+                    : currentLevel?.name}
                 </p>
               </div>
 
               {/* Campaign time is the only completion metric. */}
               <div className="bg-[#152538] border border-[#E89B4A]/50 p-4 sm:p-5 rounded-xl text-center">
-                <span className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold block mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                  ⏱ Campaign Time
+                <span className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold block mb-1"
+                      style={{ fontFamily: "'Orbitron', sans-serif" }}>
+                  ⏱ Set Time
                 </span>
-                <span className="text-2xl sm:text-3xl font-extrabold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <span className="text-2xl sm:text-3xl font-extrabold text-[#E89B4A]"
+                      style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                   {formatTime(totalMs)}
                 </span>
               </div>
 
-              {/* ── DETAILED LEVEL TELEMETRY TABLE (ON CAMPAIGN VICTORY) ── */}
+              {/* ── DETAILED LEVEL TELEMETRY TABLE (ON SET VICTORY) ── */}
               {allCleared && (
                 <div className="space-y-2 bg-[#07111F] border border-[#1E344D] rounded-xl p-3 sm:p-4 md:p-5">
                   {/* Scrollable Table Area */}
                   <div className="space-y-1.5 sm:space-y-2 max-h-[360px] sm:max-h-[420px] overflow-y-auto pr-1.5 custom-scrollbar">
-                    {PUZZLES.map((p, idx) => {
+                    {currentSet?.levels.map((level, idx) => {
                       const usedInputs = levelInputs[idx] || {};
 
                       return (
@@ -405,10 +469,10 @@ export default function App() {
                                   className="font-semibold text-[11px] sm:text-xs text-[#F5F1E8] truncate"
                                   style={{ fontFamily: "'JetBrains Mono', monospace" }}
                                 >
-                                  {p.name}
+                                  {level.name}
                                 </div>
                                 <div className="text-[9px] text-[#3DD6D0] font-mono font-bold">
-                                  Target Output: {p.target}
+                                  Target Output: {level.target}
                                 </div>
                               </div>
                             </div>
@@ -417,7 +481,8 @@ export default function App() {
 
                           {/* Inputs Used Row */}
                           <div className="flex flex-wrap items-center gap-2 pl-2 sm:pl-8 border-t border-[#1E344D] pt-2 mt-1">
-                            <span className="text-[8px] sm:text-[9px] text-[#AAB7C4] uppercase tracking-wider font-bold min-w-[70px]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+                            <span className="text-[8px] sm:text-[9px] text-[#AAB7C4] uppercase tracking-wider font-bold min-w-[70px]"
+                                  style={{ fontFamily: "'Orbitron', sans-serif" }}>
                               Inputs:
                             </span>
                             <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -447,25 +512,37 @@ export default function App() {
               {/* Action Button */}
               <div className="pt-1 sm:pt-2">
                 <button
-                  onClick={isLastLevel && allCleared ? restartAll : goToNextLevel}
+                  onClick={allCleared ? () => {
+                    // Reset to set selection
+                    setSelectedSet(null);
+                    setShowSetSelection(true);
+                  } : goToNextLevel}
                   className="w-full py-3.5 sm:py-4 rounded-xl border text-sm sm:text-base md:text-lg uppercase tracking-[0.2em] cursor-pointer font-bold transition-all duration-300 transform"
                   style={{
                     fontFamily: "'Orbitron', sans-serif",
-                    borderColor: '#F4C95D',
+                    borderColor: allCleared ? '#F4C95D' : currentSet?.name.includes('Set A') ? '#F4C95D' :
+                                             currentSet?.name.includes('Set B') ? '#E89B4A' : '#3DD6D0',
                     color: '#07111F',
-                    background: 'linear-gradient(180deg, #F4C95D 0%, #E89B4A 100%)',
+                    background: allCleared ? 'linear-gradient(180deg, #F4C95D 0%, #E89B4A 100%)' :
+                                 currentSet?.name.includes('Set A') ? 'linear-gradient(180deg, #F4C95D 0%, #E89B4A 100%)' :
+                                 currentSet?.name.includes('Set B') ? 'linear-gradient(180deg, #E89B4A 0%, #E76F51 100%)' :
+                                                                    'linear-gradient(180deg, #3DD6D0 0%, #48C78E 100%)',
                     boxShadow: '0 0 30px rgba(244,201,93,0.4), 0 0 60px rgba(244,201,93,0.15)',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.boxShadow = '0 0 45px rgba(244,201,93,0.7), 0 0 90px rgba(244,201,93,0.3)';
+                    e.currentTarget.style.boxShadow = allCleared ? '0 0 45px rgba(244,201,93,0.7), 0 0 90px rgba(244,201,93,0.3)' :
+                                 e.currentTarget.style.boxShadow.includes('45px') ? e.currentTarget.style.boxShadow :
+                                 '0 0 45px rgba(244,201,93,0.7), 0 0 90px rgba(244,201,93,0.3)';
                     e.currentTarget.style.transform = 'scale(1.02)';
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.boxShadow = '0 0 30px rgba(244,201,93,0.4), 0 0 60px rgba(244,201,93,0.15)';
+                    e.currentTarget.style.boxShadow = allCleared ? '0 0 30px rgba(244,201,93,0.4), 0 0 60px rgba(244,201,93,0.15)' :
+                                 e.currentTarget.style.boxShadow.includes('30px') ? e.currentTarget.style.boxShadow :
+                                 '0 0 30px rgba(244,201,93,0.4), 0 0 60px rgba(244,201,93,0.15)';
                     e.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
-                  {allCleared ? '↺ RESTART MISSION' : 'NEXT LEVEL →'}
+                  {allCleared ? 'Choose Another Set' : 'Next Level →'}
                 </button>
               </div>
 

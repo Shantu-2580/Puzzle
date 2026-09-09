@@ -8,7 +8,13 @@ const GameHeader = ({
   isTimerStarted,
   elapsedMs,
   totalMs,
+  selectedSet,
+  SETS,
 }) => {
+  // Get current set word for display
+  const currentSetWord = selectedSet && SETS[selectedSet] ? SETS[selectedSet].word : '';
+  const currentSetName = selectedSet && SETS[selectedSet] ? SETS[selectedSet].name : '';
+
   return (
     <header className="border-b border-[#1E344D] px-2.5 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-2.5 flex-shrink-0 select-none bg-[#07111F]/90 backdrop-blur-md sticky top-0 z-30">
       <div className="flex items-center gap-2.5 sm:gap-4 flex-wrap w-full sm:w-auto justify-between sm:justify-start">
@@ -42,11 +48,11 @@ const GameHeader = ({
       <div className="flex items-center gap-1.5 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-[#1E344D] pt-1.5 sm:pt-0">
         {/* Level Timer (Starts on first input) */}
         <div className="flex items-center gap-1.5 bg-[#0D1B2A] border border-[#1E344D] px-2.5 py-1 rounded relative">
-          <span className="text-[9px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+          <span className="text-[9px] sm:text-[10px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             ⏱ LVL:
           </span>
           <span
-            className={`text-xs sm:text-sm font-bold ${
+            className={`text-xs sm:text-[10px] font-bold ${
               isTimerStarted ? 'text-[#3DD6D0]' : 'text-[#E89B4A]'
             }`}
             style={{ fontFamily: "'JetBrains Mono', monospace" }}
@@ -54,30 +60,45 @@ const GameHeader = ({
             {formatTime(elapsedMs)}
           </span>
           {!isTimerStarted && !levelCleared && (
-            <span className="text-[8px] font-bold uppercase text-[#E89B4A] tracking-wider px-1 rounded bg-[#E89B4A]/10 border border-[#E89B4A]/30 animate-pulse ml-1">
+            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-[#E89B4A] tracking-wider px-1 rounded bg-[#E89B4A]/10 border border-[#E89B4A]/30 animate-pulse ml-1">
               TAP TO START
             </span>
           )}
         </div>
 
         {/* Total Timer */}
-        <div className="flex items-center gap-1.5 bg-[#0D1B2A] border border-[#1E344D] px-2.5 py-1 rounded">
-          <span className="text-[9px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+        <div className="flex items-center gap-1.5 sm:gap-2 bg-[#0D1B2A] border border-[#1E344D] px-2.5 py-1 rounded">
+          <span className="text-[9px] sm:text-[10px] tracking-wider uppercase text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             TOTAL:
           </span>
-          <span className="text-xs sm:text-sm font-bold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+          <span className="text-xs sm:text-[10px] font-bold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
             {formatTime(totalMs)}
           </span>
         </div>
 
-        {/* Level indicator */}
-        <span
-          className="text-[10px] sm:text-[11px] tracking-[0.15em] uppercase font-bold"
-          style={{ fontFamily: "'Orbitron', sans-serif", color: '#F4C95D' }}
-        >
-          LVL {currentLevel + 1}
-          <span style={{ color: '#AAB7C4' }}>/{TOTAL_LEVELS}</span>
-        </span>
+        {/* Level indicator with Set Information */}
+        <div className="flex items-center gap-2">
+          {selectedSet ? (
+            <>
+              <span
+                className="text-[10px] sm:text-[11px] tracking-[0.15em] uppercase font-bold"
+                style={{ fontFamily: "'Orbitron', sans-serif", color: '#F4C95D' }}
+              >
+                Set {selectedSet}: {currentSetWord}
+              </span>
+              <span style={{ color: '#AAB7C4', marginLeft: 4 }}>
+                [{currentLevel}/{TOTAL_LEVELS}]
+              </span>
+            </>
+          ) : (
+            <span
+              className="text-[10px] sm:text-[11px] tracking-[0.15em] uppercase font-bold"
+              style={{ fontFamily: "'Orbitron', sans-serif", color: '#F4C95D' }}
+            >
+              Select a Set
+            </span>
+          )}
+        </div>
       </div>
     </header>
   );

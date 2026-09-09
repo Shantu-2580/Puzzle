@@ -70,8 +70,13 @@ export function evaluate(inputMap, gateTypes) {
   return out;
 }
 
-// ── Find a valid solution map for Admin Auto-Solve/Skip ─────
-export function findSolution(puzzle) {
+function matchesAnswerKey(inputMap, answer) {
+  if (typeof answer !== 'string' || answer.length !== INPUT_LABELS.length) return false;
+  return INPUT_LABELS.every((label, index) => inputMap[label] === Number(answer[index]));
+}
+
+export function findSolutions(puzzle) {
+  const solutions = [];
   for (let mask = 0; mask < 256; mask++) {
     const inputMap = Object.fromEntries(
       INPUT_LABELS.map((label, index) => [label, (mask >> (7 - index)) & 1])
@@ -91,9 +96,16 @@ export function findSolution(puzzle) {
         if (nodeIdx !== undefined && out[nodeIdx] !== reqVal) nodeMet = false;
       }
     }
-    if (targetMet && fixedMet && nodeMet) return inputMap;
+    if (targetMet && fixedMet && nodeMet && matchesAnswerKey(inputMap, puzzle.answer)) {
+      solutions.push(inputMap);
+    }
   }
-  return null;
+  return solutions;
+}
+
+export function findSolution(puzzle) {
+  const solutions = findSolutions(puzzle);
+  return solutions.length === 1 ? solutions[0] : null;
 }
 
 // Default starting input states (8 inputs, all zeros)
@@ -102,46 +114,121 @@ export const DEFAULT_INPUTS = { A:0, B:0, C:0, D:0, E:0, F:0, G:0, H:0 };
 // Input label identifiers (8 inputs: A–H)
 export const INPUT_LABELS = ['A','B','C','D','E','F','G','H'];
 
-// ── 3 puzzles with one required input and 2-3 compulsory gate conditions ──
-// Answers spell "GOD" in ASCII: G=01000111, O=01001111, D=01000100
-export const PUZZLES = [
-  {
-    name: '01 · The Gorgon\'s Labyrinth',
-    // Gates designed so answer 01000111 (G) is the unique solution
-    gates: ['OR', 'OR', 'XOR', 'AND', 'NOR', 'AND', 'XOR', 'OR'],
-    target: 1,
-    answer: '01000111',
-    // Constraint 1: One required input (A must be 0)
-    fixedInputs: { A: 0 },
-    // Constraint 2: 3 compulsory gate values
-    fixedNodes: { G1: 1, G5: 0, G7: 1 },
-    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+// ── SETS STRUCTURE ──────────────────────────────────────────────────────
+// Each set contains 3 levels that spell a word when solved
+export const SETS = {
+  A: {
+    name: 'Set A: END',
+    description: 'Spell "END" by solving all three levels',
+    word: 'END',
+    levels: [
+      {
+        // Level 1: E (01000101)
+        name: 'A1 · The Echo Chamber',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // E = 01000101 -> last bit is 1
+        answer: '01000101',
+        fixedNodes: { G1: 1, G2: 0, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      },
+      {
+        // Level 2: N (01001110)
+        name: 'A2 · The Nexus Gate',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // XOR circuit output for N = 01001110
+        answer: '01001110',
+        fixedNodes: { G1: 1, G2: 0, G3: 0 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      },
+      {
+        // Level 3: D (01000100)
+        name: 'A3 · The Delta Lock',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // XOR circuit output for D = 01000100
+        answer: '01000100',
+        fixedNodes: { G1: 1, G2: 0, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      }
+    ]
   },
-  {
-    name: '02 · Titan\'s Parity Trap',
-    // Gates designed so answer 01001111 (O) is the unique solution
-    gates: ['OR', 'AND', 'AND', 'AND', 'AND', 'AND', 'OR', 'XNOR'],
-    target: 1,
-    answer: '01001111',
-    // Constraint 1: One required input (A must be 0)
-    fixedInputs: { A: 0 , H:1},
-    // Constraint 2: 3 compulsory gate values
-    fixedNodes: { G1: 1,G3: 1, G6: 1, G8: 1 },
-    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 1 },
+  B: {
+    name: 'Set B: SAD',
+    description: 'Spell "SAD" by solving all three levels',
+    word: 'SAD',
+    levels: [
+      {
+        // Level 1: S (01010011)
+        name: 'B1 · The Signal Gate',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 0, // XOR circuit output for S = 01010011
+        answer: '01010011',
+        fixedNodes: { G1: 1, G2: 1, G3: 0 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 1 },
+      },
+      {
+        // Level 2: A (01000001)
+        name: 'B2 · The Alpha Cipher',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // A = 01000001 -> last bit is 1
+        answer: '01000001',
+        fixedNodes: { G1: 1, G2: 0, G3: 0 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      },
+      {
+        // Level 3: D (01000100)
+        name: 'B3 · The Delta Vault',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // XOR circuit output for D = 01000100
+        answer: '01000100',
+        fixedNodes: { G1: 1, G2: 0, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      }
+    ]
   },
-  {
-    name: '03 · Recursive Singularity',
-    // Gates designed so answer 01000100 (D) is the unique solution
-    gates: ['NOR', 'XOR', 'OR', 'OR', 'OR', 'NAND', 'NOR', 'OR'],
-    target: 0,
-    answer: '01000100',
-    // Constraint 1: One required input (A must be 0)
-    fixedInputs: { A: 0 },
-    // Constraint 2: 2 compulsory gate values
-    fixedNodes: { G3: 1, G7: 0 },
-    initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
-  },
-];
+  C: {
+    name: 'Set C: WET',
+    description: 'Spell "WET" by solving all three levels',
+    word: 'WET',
+    levels: [
+      { 
+        // Level 1: W (01010111)
+        name: 'C1 · The Waveform Gate',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 0, // XOR circuit output for W = 01010111
+        answer: '01010111',
+        fixedNodes: { G1: 1, G2: 1, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      },
+      {
+        // Level 2: E (01000101)
+        name: 'C2 · The Echo Vault',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 1, // E = 01000101 -> last bit is 1
+        answer: '01000101',
+        fixedNodes: { G1: 1, G2: 0, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 1 },
+      },
+      {
+        // Level 3: T (01010100)
+        name: 'C3 · The Terminal Node',
+        // Placeholder gates - user can modify these easily
+        gates: ['XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR', 'XOR'],
+        target: 0, // T = 01010100 -> last bit is 0
+        answer: '01010100',
+        fixedNodes: { G1: 1, G2: 1, G3: 1 },
+        initialInputs: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 },
+      }
+    ]
+  }
+};
 
 // Helper to format time in mm:ss.s
 export function formatTime(ms) {

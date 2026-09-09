@@ -14,7 +14,9 @@ const ResultTerminal = ({
   levelCleared,
   isLastLevel,
   goToNextLevel,
-  restartAll,
+  restartSet,
+  selectedSet,
+  SETS,
 }) => {
   const [copied, setCopied] = useState(false);
   const finalOutput = gateOutputs[7];
@@ -86,7 +88,7 @@ const ResultTerminal = ({
                   ? `Required Node ${failedFixedNode[0]} must output ${failedFixedNode[1]} to satisfy compulsory layer lock.`
                   : failedFixedInput
                     ? `Target output met, but Input ${failedFixedInput[0]} must be set to ${failedFixedInput[1]}.`
-                    : `Output: ${finalOutput} ≠ Target: ${puzzle.target}. Adjust A–F.`}
+                    : `Output: ${finalOutput} ≠ Target: ${puzzle?.target}. Adjust A–F.`}
             </div>
           </div>
         </div>
@@ -94,7 +96,7 @@ const ResultTerminal = ({
         {levelCleared && (
           <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-[#1E344D]">
             <button
-              onClick={isLastLevel ? restartAll : goToNextLevel}
+              onClick={isLastLevel ? restartSet : goToNextLevel}
               className="px-5 py-2.5 rounded-lg border text-xs uppercase tracking-wider cursor-pointer font-bold w-full sm:w-auto text-center"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
@@ -106,18 +108,18 @@ const ResultTerminal = ({
                 animation: 'pulse-neon 1.5s ease-in-out infinite',
               }}
             >
-              {isLastLevel ? '↺ Victory Brief' : 'Next Level →'}
+              {isLastLevel ? '↺ Restart Set' : 'Next Level →'}
             </button>
           </div>
         )}
       </div>
 
-      {/* 🔑 LEVEL 10 / GRAND VERIFICATION PHRASE BANNER */}
+      {/* 🔑 SET COMPLETION / GRAND VERIFICATION PHRASE BANNER */}
       {success && isLastLevel && (
         <div className="w-full mt-2 bg-[#07111F]/90 border border-[#F4C95D] p-3 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3 shadow-[0_0_20px_rgba(244,201,93,0.3)] animate-fadeIn">
           <div className="text-left space-y-0.5">
             <div className="text-[10px] uppercase tracking-[0.2em] text-[#3DD6D0] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-              🔑 FINAL VERIFICATION PHRASE
+              🔑 SET VERIFICATION PHRASE
             </div>
             <div className="text-xs sm:text-sm font-extrabold text-[#F4C95D] tracking-wider font-mono">
               "{FULL_CIPHER_SENTENCE}"
