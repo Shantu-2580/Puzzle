@@ -8,7 +8,6 @@ const InputMatrix = ({
   toggleInput,
   isTimerStarted,
   startTimerIfNeeded,
-  asciiData,
 }) => {
   return (
     <section className="p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#0D1B2A]">
@@ -27,23 +26,6 @@ const InputMatrix = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-between">
-          {/* 🔤 Live Binary-to-ASCII HUD Decoder */}
-          <div className="flex items-center gap-2 bg-[#07111F] border border-[#1E344D] px-3 py-1 rounded-lg text-xs font-mono">
-            <span className="text-[9px] uppercase text-[#AAB7C4] font-bold tracking-wider" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-              ASCII Telemetry:
-            </span>
-            <span className="text-[#3DD6D0] font-bold tracking-widest">{asciiData.binaryStr}</span>
-            <span className="text-[#5B8DEF]">→</span>
-            <span className="text-[#E89B4A] font-bold">DEC:{asciiData.code}</span>
-            <span className="text-[#5B8DEF]">→</span>
-            <span className="text-[#F4C95D] font-extrabold text-sm px-1.5 py-0.2 rounded bg-[#F4C95D]/10 border border-[#F4C95D]/40">
-              '{asciiData.char}'
-            </span>
-          </div>
-
-
-        </div>
       </div>
 
       <div className="-mx-1 px-1 pb-1">

@@ -2,29 +2,29 @@ import React, { useMemo } from 'react';
 import { CIRCUIT } from './engine';
 
 /* ── 1. PORTRAIT TREE LAYOUT (Bottom → Top Flow, 8 Inputs, 4 Layers, 8 Gates) ────
-   viewBox = 0 0 540 600
-   Inputs A-H at bottom (y=520), Gate 8 (G8) & Output at top (y=35)
+   viewBox = 0 0 540 680
+   Inputs A-H at bottom (y=600), Gate 8 (G8) & Output at top (y=35)
 */
 const TREE_INPUT_POS = {
-  A: { x: 30,  y: 520 },
-  B: { x: 100, y: 520 },
-  C: { x: 170, y: 520 },
-  D: { x: 240, y: 520 },
-  E: { x: 310, y: 520 },
-  F: { x: 380, y: 520 },
-  G: { x: 450, y: 520 },
-  H: { x: 520, y: 520 },
+  A: { x: 30,  y: 600 },
+  B: { x: 100, y: 600 },
+  C: { x: 170, y: 600 },
+  D: { x: 240, y: 600 },
+  E: { x: 310, y: 600 },
+  F: { x: 380, y: 600 },
+  G: { x: 450, y: 600 },
+  H: { x: 520, y: 600 },
 };
 
 const TREE_GATE_POS = {
-  0: { x: 30,  y: 400 }, // G1 (A, B)
-  1: { x: 170, y: 400 }, // G2 (C, D)
-  2: { x: 310, y: 400 }, // G3 (E, F)
-  3: { x: 450, y: 400 }, // G4 (G, H)
-  4: { x: 100, y: 280 }, // G5 (G1, G2)
-  5: { x: 380, y: 280 }, // G6 (G3, G4)
-  6: { x: 240, y: 160 }, // G7 (G5, G6)
-  7: { x: 240, y: 60  }, // G8 (G7, G6) - Output Stage
+  0: { x: 30,  y: 460 }, // G1 (A, B)
+  1: { x: 170, y: 460 }, // G2 (C, D)
+  2: { x: 310, y: 460 }, // G3 (E, F)
+  3: { x: 450, y: 460 }, // G4 (G, H)
+  4: { x: 100,  y: 315 }, // G5 (G1, G2)
+  5: { x: 380,  y: 315 }, // G6 (G3, G4)
+  6: { x: 240, y: 175 }, // G7 (G5, G6)
+  7: { x: 240, y: 65  }, // G8 (G7, G6) - Output Stage
 };
 
 const TREE_GATE_W = 80;
@@ -204,9 +204,9 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
   if (layoutMode === 'tree') {
     return (
       <svg
-        viewBox="0 0 540 600"
+        viewBox="0 0 540 680"
         preserveAspectRatio="xMidYMid meet"
-        className="w-full h-auto max-w-[540px] mx-auto max-h-[600px]"
+        className="w-full h-auto max-w-[540px] mx-auto"
       >
         <defs>
           <filter id="neon-glow">
@@ -222,14 +222,14 @@ export default function CircuitSVG({ inputs, gateOutputs, gateTypes, fixedInputs
         <pattern id="grid-tree" width="30" height="30" patternUnits="userSpaceOnUse">
           <circle cx="15" cy="15" r="0.5" fill="#1E344D" opacity="0.5" />
         </pattern>
-        <rect width="540" height="600" fill="url(#grid-tree)" />
+        <rect width="540" height="680" fill="url(#grid-tree)" />
 
         {/* Layer Guide Lines */}
         {[
-          { y: 545, label: 'INPUTS (A-H)' },
-          { y: 380, label: 'LAYER 1 GATES' },
-          { y: 260, label: 'LAYER 2 GATES' },
-          { y: 140, label: 'LAYER 3 GATE' },
+          { y: 625, label: 'INPUTS (A-H)' },
+          { y: 440, label: 'LAYER 1 GATES' },
+          { y: 295, label: 'LAYER 2 GATES' },
+          { y: 155, label: 'LAYER 3 GATE' },
           { y: 40,  label: 'LAYER 4 OUTPUT STAGE' },
         ].map((lh, i) => (
           <text

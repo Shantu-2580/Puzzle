@@ -4,7 +4,7 @@ import ControlPanel from './components/ControlPanel';
 import InputMatrix from './components/InputMatrix';
 import CircuitDisplay from './components/CircuitDisplay';
 import ResultTerminal from './components/ResultTerminal';
-import { evaluate, findSolution, PUZZLES, GATE_LABELS, formatTime, DEFAULT_INPUTS, inputsToAscii, INPUT_LABELS, CIRCUIT } from './engine';
+import { evaluate, findSolution, PUZZLES, GATE_LABELS, formatTime, DEFAULT_INPUTS, INPUT_LABELS, CIRCUIT } from './engine';
 
 const TOTAL_LEVELS = PUZZLES.length;
 const VALID_ADMIN_PASSWORDS = ['MINOTAUR', 'ADMIN', 'GATEKEEPER', '1234'];
@@ -32,9 +32,6 @@ export default function App() {
 
   const puzzle = PUZZLES[currentLevel];
   const gateTypes = puzzle.gates;
-
-  // Real-time ASCII HUD evaluation
-  const asciiData = useMemo(() => inputsToAscii(inputs), [inputs]);
 
   // Helper to start the level timer on first input action
   const startTimerIfNeeded = useCallback(() => {
@@ -205,29 +202,6 @@ export default function App() {
   const isLastLevel = currentLevel === TOTAL_LEVELS - 1;
   const levelNum = currentLevel + 1;
 
-  // Best level time & average level time
-  const bestLevelTimeMs = useMemo(() => {
-    if (levelTimes.length === 0) return null;
-    const validTimes = levelTimes.filter(Boolean);
-    return validTimes.length > 0 ? Math.min(...validTimes) : null;
-  }, [levelTimes]);
-
-  const bestLevelIndex = useMemo(() => {
-    if (!bestLevelTimeMs) return null;
-    return levelTimes.findIndex(t => t === bestLevelTimeMs);
-  }, [levelTimes, bestLevelTimeMs]);
-
-  const avgLevelTimeMs = useMemo(() => {
-    const validTimes = levelTimes.filter(Boolean);
-    if (validTimes.length === 0) return 0;
-    return Math.round(validTimes.reduce((a, b) => a + b, 0) / validTimes.length);
-  }, [levelTimes]);
-
-  const maxLevelTimeMs = useMemo(() => {
-    const validTimes = levelTimes.filter(Boolean);
-    return validTimes.length > 0 ? Math.max(...validTimes) : 1000;
-  }, [levelTimes]);
-
   return (
     <div className="min-h-screen bg-void flex flex-col relative w-full overflow-x-hidden pb-16 sm:pb-0">
       <GameHeader
@@ -266,7 +240,6 @@ export default function App() {
           toggleInput={toggleInput}
           isTimerStarted={isTimerStarted}
           startTimerIfNeeded={startTimerIfNeeded}
-          asciiData={asciiData}
         />
 
         <CircuitDisplay
@@ -378,109 +351,31 @@ export default function App() {
                 </p>
               </div>
 
-              {/* ── KPI STATISTICS GRID ── */}
-              {allCleared ? (
-                /* 4-Card Grid for Full Campaign Victory */
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-                    {/* Total Time Card */}
-                    <div className="bg-[#152538] border border-[#1E344D] p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                        ⏱ Campaign Time
-                      </span>
-                      <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {formatTime(totalMs)}
-                      </span>
-                    </div>
-
-                    {/* Fastest Sprint Card */}
-                    <div className="bg-[#152538] border border-[#F4C95D]/40 p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
-                      <div className="absolute top-1 right-1.5 text-[7px] sm:text-[8px] font-bold text-[#F4C95D] uppercase px-1 py-0.5 rounded bg-[#F4C95D]/10 border border-[#F4C95D]/30">
-                        BEST
-                      </div>
-                      <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                        ⚡ Fastest Sprint
-                      </span>
-                      <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-[#F4C95D]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {bestLevelTimeMs ? formatTime(bestLevelTimeMs) : '--:--'}
-                      </span>
-                      <span className="text-[8px] sm:text-[9px] text-[#F4C95D]/80 mt-0.5 truncate max-w-full font-mono">
-                        {bestLevelIndex !== null ? PUZZLES[bestLevelIndex]?.name : ''}
-                      </span>
-                    </div>
-
-                    {/* Average Level Time Card */}
-                    <div className="bg-[#152538] border border-[#1E344D] p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                        📊 Avg Gate Time
-                      </span>
-                      <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-[#3DD6D0]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {formatTime(avgLevelTimeMs)}
-                      </span>
-                    </div>
-
-                    {/* Security Clearance Card */}
-                    <div className="bg-[#152538] border border-[#1E344D] p-3 sm:p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                        🛡 Security Level
-                      </span>
-                      <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-[#48C78E]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                        10 / 10
-                      </span>
-                      <span className="text-[8px] sm:text-[9px] text-[#48C78E] mt-0.5 font-mono">100% Breached</span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                /* 2-Card Grid for Single Level Clear */
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                  <div className="bg-[#152538] border border-[#3DD6D0]/40 p-3 sm:p-4 rounded-xl text-center">
-                    <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold block mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                      Level Clear Time
-                    </span>
-                    <span className="text-xl sm:text-2xl font-extrabold text-[#3DD6D0]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {formatTime(elapsedMs)}
-                    </span>
-                  </div>
-
-                  <div className="bg-[#152538] border border-[#E89B4A]/40 p-3 sm:p-4 rounded-xl text-center">
-                    <span className="text-[8px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold block mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                      Total Elapsed Time
-                    </span>
-                    <span className="text-xl sm:text-2xl font-extrabold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {formatTime(totalMs)}
-                    </span>
-                  </div>
-                </div>
-              )}
+              {/* Campaign time is the only completion metric. */}
+              <div className="bg-[#152538] border border-[#E89B4A]/50 p-4 sm:p-5 rounded-xl text-center">
+                <span className="text-[9px] sm:text-[10px] tracking-[0.15em] uppercase text-[#AAB7C4] font-bold block mb-1" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+                  ⏱ Campaign Time
+                </span>
+                <span className="text-2xl sm:text-3xl font-extrabold text-[#E89B4A]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  {formatTime(totalMs)}
+                </span>
+              </div>
 
               {/* ── DETAILED LEVEL TELEMETRY TABLE (ON CAMPAIGN VICTORY) ── */}
               {allCleared && (
                 <div className="space-y-2 bg-[#07111F] border border-[#1E344D] rounded-xl p-3 sm:p-4 md:p-5">
-                  <div className="flex items-center justify-between border-b border-[#1E344D] pb-2 sm:pb-3 mb-1.5 sm:mb-2">
-                    <h3 className="text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase text-[#3DD6D0] flex items-center gap-1.5 sm:gap-2" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                      <span>📡</span> Full Level Telemetry Log
-                    </h3>
-                    <span className="text-[8px] sm:text-[10px] text-[#AAB7C4] uppercase tracking-wider" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-                      3 Levels Cleared
-                    </span>
-                  </div>
-
                   {/* Scrollable Table Area */}
-                  <div className="space-y-1.5 sm:space-y-2 max-h-[220px] sm:max-h-[260px] overflow-y-auto pr-1.5 custom-scrollbar">
+                  <div className="space-y-1.5 sm:space-y-2 max-h-[360px] sm:max-h-[420px] overflow-y-auto pr-1.5 custom-scrollbar">
                     {PUZZLES.map((p, idx) => {
-                      const t = levelTimes[idx] || 0;
-                      const isBest = t === bestLevelTimeMs && t > 0;
-                      const pct = Math.min(100, Math.max(12, Math.round((t / maxLevelTimeMs) * 100)));
                       const usedInputs = levelInputs[idx] || {};
 
                       return (
                         <div
                           key={idx}
-                          className="flex flex-col gap-2 p-2.5 sm:p-3 rounded-lg border text-xs gap-2 sm:gap-4 transition-colors"
+                          className="flex flex-col gap-2 p-2.5 sm:p-3 rounded-lg border text-xs sm:gap-4 transition-colors"
                           style={{
-                            background: isBest ? 'rgba(244,201,93,0.08)' : 'rgba(13,27,42,0.6)',
-                            borderColor: isBest ? 'rgba(244,201,93,0.4)' : '#1E344D',
+                            background: 'rgba(13,27,42,0.6)',
+                            borderColor: '#1E344D',
                           }}
                         >
                           {/* Level Header Row */}
@@ -491,9 +386,9 @@ export default function App() {
                                 className="w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center text-[9px] sm:text-[10px] font-bold flex-shrink-0"
                                 style={{
                                   fontFamily: "'Orbitron', sans-serif",
-                                  background: isBest ? 'rgba(244,201,93,0.2)' : 'rgba(61,214,208,0.1)',
-                                  color: isBest ? '#F4C95D' : '#3DD6D0',
-                                  border: `1px solid ${isBest ? '#F4C95D' : '#3DD6D0'}`,
+                                  background: 'rgba(61,214,208,0.1)',
+                                  color: '#3DD6D0',
+                                  border: '1px solid #3DD6D0',
                                 }}
                               >
                                 {idx + 1}
@@ -511,45 +406,6 @@ export default function App() {
                               </div>
                             </div>
 
-                            {/* Relative Time Bar Visualizer */}
-                            <div className="hidden md:flex flex-1 items-center gap-2 max-w-[160px]">
-                              <div className="w-full bg-[#07111F] h-2 rounded-full overflow-hidden border border-[#1E344D]">
-                                <div
-                                  className="h-full rounded-full transition-all duration-500"
-                                  style={{
-                                    width: `${pct}%`,
-                                    background: isBest ? '#F4C95D' : '#3DD6D0',
-                                    boxShadow: isBest ? '0 0 8px #F4C95D' : '0 0 6px #3DD6D0',
-                                  }}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Split Time & Rank */}
-                            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                              {isBest && (
-                                <span
-                                  className="hidden sm:inline-block text-[8px] sm:text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded tracking-wider"
-                                  style={{
-                                    fontFamily: "'Orbitron', sans-serif",
-                                    background: 'rgba(244,201,93,0.2)',
-                                    color: '#F4C95D',
-                                    border: '1px solid #F4C95D',
-                                  }}
-                                >
-                                  ⚡ BEST
-                                </span>
-                              )}
-                              <span
-                                className="font-bold text-xs sm:text-sm"
-                                style={{
-                                  fontFamily: "'JetBrains Mono', monospace",
-                                  color: isBest ? '#F4C95D' : '#F5F1E8',
-                                }}
-                              >
-                                {formatTime(t)}
-                              </span>
-                            </div>
                           </div>
 
                           {/* Inputs Used Row */}
@@ -557,11 +413,11 @@ export default function App() {
                             <span className="text-[8px] sm:text-[9px] text-[#AAB7C4] uppercase tracking-wider font-bold min-w-[70px]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
                               Inputs:
                             </span>
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
                               {INPUT_LABELS.map(label => (
                                 <span
                                   key={label}
-                                  className="w-6 h-6 sm:w-7 sm:h-7 rounded flex items-center justify-center text-xs sm:text-sm font-bold border transition-colors"
+                                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-md flex items-center justify-center text-sm sm:text-base font-bold border-2 transition-colors"
                                   style={{
                                     fontFamily: "'Orbitron', sans-serif",
                                     background: usedInputs[label] === 1 ? 'rgba(244,201,93,0.2)' : 'rgba(61,214,208,0.1)',
@@ -573,11 +429,6 @@ export default function App() {
                                 </span>
                               ))}
                             </div>
-                            {usedInputs.A !== undefined && (
-                              <span className="text-[8px] sm:text-[9px] text-[#AAB7C4] font-mono ml-2">
-                                → {formatTime(t)}
-                              </span>
-                            )}
                           </div>
                         </div>
                       );

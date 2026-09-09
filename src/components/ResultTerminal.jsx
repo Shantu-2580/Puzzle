@@ -91,9 +91,8 @@ const ResultTerminal = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-[#1E344D]">
-          {/* Next Level / Complete button */}
-          {levelCleared && (
+        {levelCleared && (
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-[#1E344D]">
             <button
               onClick={isLastLevel ? restartAll : goToNextLevel}
               className="px-5 py-2.5 rounded-lg border text-xs uppercase tracking-wider cursor-pointer font-bold w-full sm:w-auto text-center"
@@ -109,18 +108,8 @@ const ResultTerminal = ({
             >
               {isLastLevel ? '↺ Victory Brief' : 'Next Level →'}
             </button>
-          )}
-          <div
-            className="text-2xl sm:text-3xl font-black ml-auto sm:ml-0"
-            style={{
-              fontFamily: "'Orbitron', sans-serif",
-              color: success ? '#48C78E' : '#E76F51',
-              textShadow: success ? '0 0 15px rgba(72,199,142,0.5)' : '0 0 8px rgba(231,111,81,0.3)',
-            }}
-          >
-            {finalOutput}
           </div>
-        </div>
+        )}
       </div>
 
       {/* 🔑 LEVEL 10 / GRAND VERIFICATION PHRASE BANNER */}

@@ -68,19 +68,19 @@ const ControlPanel = ({
 
       {/* Level Info & Target Output */}
       <div className="order-1 flex w-full flex-wrap items-center justify-between gap-3 lg:order-none lg:w-auto lg:justify-end">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="text-xs sm:text-sm font-bold text-[#F5F1E8]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-            {puzzle.name}
-          </span>
-
-          <div className="flex items-center gap-1.5 bg-[#07111F] border border-[#1E344D] px-2.5 py-1 rounded">
-            <span className="text-[9px] uppercase tracking-wider text-[#AAB7C4]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
-              Target:
+        <div className="flex w-full min-w-0 flex-col items-stretch gap-2">
+          <div className="flex items-center justify-between gap-3 rounded-lg border-2 border-[#3DD6D0]/60 bg-[#07111F] px-3 py-2 sm:px-4 sm:py-2.5">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.18em] text-[#AAB7C4] font-bold" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+              Target Output
             </span>
-            <span className="text-xs sm:text-sm font-bold text-[#3DD6D0]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            <span className="text-2xl sm:text-3xl font-black text-[#3DD6D0]" style={{ fontFamily: "'Orbitron', sans-serif", textShadow: '0 0 12px rgba(61,214,208,0.5)' }}>
               {puzzle.target}
             </span>
           </div>
+
+          <span className="text-sm sm:text-base font-bold text-[#F5F1E8]" style={{ fontFamily: "'Orbitron', sans-serif" }}>
+            {puzzle.name}
+          </span>
         </div>
 
         {/* Compulsory Node Locks (1 per layer) */}
@@ -93,7 +93,7 @@ const ControlPanel = ({
               return (
                 <div
                   key={nodeLabel}
-                  className="flex items-center gap-1 px-2 py-1 rounded border text-[10px] font-bold"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded border-2 text-xs sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#3DD6D0' : '#E89B4A',
@@ -101,7 +101,7 @@ const ControlPanel = ({
                     color: ok ? '#3DD6D0' : '#E89B4A',
                   }}
                 >
-                  <span>LOCK {nodeLabel}:{reqVal}</span>
+                  <span>LOCK {nodeLabel}: {reqVal}</span>
                   <span>{ok ? '✓' : `(${curVal})`}</span>
                 </div>
               );
@@ -118,7 +118,7 @@ const ControlPanel = ({
               return (
                 <div
                   key={inputKey}
-                  className="flex items-center gap-1 px-2 py-1 rounded border text-[10px] font-bold"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded border-2 text-xs sm:text-sm font-bold"
                   style={{
                     fontFamily: "'JetBrains Mono', monospace",
                     borderColor: ok ? '#48C78E' : '#E89B4A',
@@ -126,7 +126,7 @@ const ControlPanel = ({
                     color: ok ? '#48C78E' : '#E89B4A',
                   }}
                 >
-                  <span>REQ {inputKey}:{reqVal}</span>
+                  <span>REQ {inputKey}: {reqVal}</span>
                   <span>{ok ? '✓' : `(${curVal})`}</span>
                 </div>
               );

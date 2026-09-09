@@ -11,7 +11,7 @@ const CircuitDisplay = ({
   setLayoutMode,
 }) => {
   return (
-    <section className="flex-1 min-h-[320px] sm:min-h-[380px] p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#07111F] overflow-auto custom-scrollbar relative">
+    <section className="flex-1 min-h-[50svh] sm:min-h-[480px] p-3 sm:p-4 rounded-lg border border-[#1E344D] bg-[#07111F] overflow-auto custom-scrollbar relative">
       <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <h2

@@ -2,29 +2,9 @@
  * Unit tests for the engine logic (8 inputs A-H, 4 layers, 8 gates)
  */
 
-import { evaluate, findSolution, inputsToAscii, GATES, DEFAULT_INPUTS, PUZZLES, CIRCUIT } from '../engine';
+import { evaluate, findSolution, GATES, DEFAULT_INPUTS, PUZZLES, CIRCUIT } from '../engine';
 
 describe('Engine Logic', () => {
-  describe('inputsToAscii', () => {
-    test('converts 8-bit binary input to ASCII telemetry correctly', () => {
-      const inputs = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0 }; // 00000000 = 0
-      expect(inputsToAscii(inputs)).toEqual({
-        binaryStr: '00000000',
-        code: 0,
-        char: '•' // Non-printable character
-      });
-    });
-
-    test('converts printable 8-bit ASCII correctly', () => {
-      const inputs = { A: 0, B: 1, C: 0, D: 0, E: 0, F: 0, G: 0, H: 1 }; // 01000001 = 65 = 'A'
-      expect(inputsToAscii(inputs)).toEqual({
-        binaryStr: '01000001',
-        code: 65,
-        char: 'A'
-      });
-    });
-  });
-
   describe('Logic Gates', () => {
     test('AND gate', () => {
       expect(GATES.AND(0, 0)).toBe(0);

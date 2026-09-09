@@ -54,14 +54,6 @@ export const CIPHER_WORDS = [
 
 export const FULL_CIPHER_SENTENCE = CIPHER_WORDS.join(' '); // "MASTER THE LOGIC"
 
-// ── Binary to ASCII Converter Helper (8-bit binary) ────────────────────────
-export function inputsToAscii(inputs) {
-  const binaryStr = INPUT_LABELS.map(label => inputs[label] ?? 0).join('');
-  const code = parseInt(binaryStr, 2);
-  const char = code >= 32 && code <= 126 ? String.fromCharCode(code) : '•';
-  return { binaryStr, code, char };
-}
-
 // ── Evaluate the full circuit ──────────────────────────
 export function evaluate(inputMap, gateTypes) {
   const out = new Array(8).fill(0);
